@@ -1,18 +1,30 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, Upload } from 'lucide-react';
-import { toast } from 'sonner';
-import Image from 'next/image';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Plus, Edit, Trash2, Upload } from "lucide-react";
+import { toast } from "sonner";
+import Image from "next/image";
 
 interface Product {
   id: string;
@@ -25,6 +37,7 @@ interface Product {
   isFeatured: boolean;
   isActive: boolean;
   section: {
+    [x: string]: string;
     name: string;
   };
 }
@@ -40,12 +53,12 @@ export default function AdminProducts() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    originalPrice: '',
-    discountPrice: '',
-    sectionId: '',
-    displayImage: '',
+    title: "",
+    description: "",
+    originalPrice: "",
+    discountPrice: "",
+    sectionId: "",
+    displayImage: "",
     productFiles: [] as string[],
     isFeatured: false,
     isActive: true,
@@ -59,21 +72,21 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products');
+      const response = await fetch("/api/products");
       const data = await response.json();
       setProducts(data);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
     }
   };
 
   const fetchSections = async () => {
     try {
-      const response = await fetch('/api/sections');
+      const response = await fetch("/api/sections");
       const data = await response.json();
       setSections(data);
     } catch (error) {
-      console.error('Error fetching sections:', error);
+      console.error("Error fetching sections:", error);
     }
   };
 
@@ -81,19 +94,19 @@ export default function AdminProducts() {
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', 'your_upload_preset'); // Replace with your Cloudinary upload preset
+    formData.append('upload_preset', 'kwf4nlm7'); // Replace with your Cloudinary upload preset
 
     try {
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
         {
-          method: 'POST',
+          method: 'POST', 
           body: formData,
         }
       );
 
       const data = await response.json();
-      
+      console.log(data)
       if (type === 'display') {
         setFormData(prev => ({ ...prev, displayImage: data.secure_url }));
       } else {
@@ -113,33 +126,52 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Filter out null/undefined values from productFiles
+    const validProductFiles = formData.productFiles.filter(file => file && file.trim() !== '');
+
     try {
       const payload = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
         originalPrice: parseFloat(formData.originalPrice),
-        discountPrice: formData.discountPrice ? parseFloat(formData.discountPrice) : undefined,
+        discountPrice: formData.discountPrice
+          ? parseFloat(formData.discountPrice)
+          : undefined,
+        sectionId: formData.sectionId,
+        displayImage: formData.displayImage, // Include displayImage
+        productFiles: validProductFiles, // Use filtered array
+        isFeatured: formData.isFeatured,
+        isActive: formData.isActive,
       };
 
-      const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
-      const method = editingProduct ? 'PUT' : 'POST';
+      console.log(formData)
+      console.log('Payload:', payload);
+
+      const url = editingProduct
+        ? `/api/products/${editingProduct.id}`
+        : "/api/products";
+      const method = editingProduct ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        toast.success(editingProduct ? 'Product updated' : 'Product created');
+        toast.success(editingProduct ? "Product updated" : "Product created");
         setIsModalOpen(false);
         resetForm();
         fetchProducts();
       } else {
-        toast.error('Failed to save product');
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
+        toast.error("Failed to save product");
       }
     } catch (error) {
-      toast.error('Something went wrong');
+      console.error('Submit error:', error);
+      toast.error("Something went wrong");
     }
   };
 
@@ -149,10 +181,10 @@ export default function AdminProducts() {
       title: product.title,
       description: product.description,
       originalPrice: product.originalPrice.toString(),
-      discountPrice: product.discountPrice?.toString() || '',
-      sectionId: product.section.id || '',
+      discountPrice: product.discountPrice?.toString() || "",
+      sectionId: product.section.id || "",
       displayImage: product.displayImage,
-      productFiles: product.productFiles,
+      productFiles: product.productFiles || [], // Ensure it's an array
       isFeatured: product.isFeatured,
       isActive: product.isActive,
     });
@@ -160,32 +192,32 @@ export default function AdminProducts() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
       const response = await fetch(`/api/products/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
-        toast.success('Product deleted');
+        toast.success("Product deleted");
         fetchProducts();
       } else {
-        toast.error('Failed to delete product');
+        toast.error("Failed to delete product");
       }
     } catch (error) {
-      toast.error('Something went wrong');
+      toast.error("Something went wrong");
     }
   };
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      description: '',
-      originalPrice: '',
-      discountPrice: '',
-      sectionId: '',
-      displayImage: '',
+      title: "",
+      description: "",
+      originalPrice: "",
+      discountPrice: "",
+      sectionId: "",
+      displayImage: "",
       productFiles: [],
       isFeatured: false,
       isActive: true,
@@ -194,9 +226,9 @@ export default function AdminProducts() {
   };
 
   const removeProductFile = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      productFiles: prev.productFiles.filter((_, i) => i !== index)
+      productFiles: prev.productFiles.filter((_, i) => i !== index),
     }));
   };
 
@@ -215,17 +247,19 @@ export default function AdminProducts() {
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                  {editingProduct ? "Edit Product" : "Add New Product"}
                 </DialogTitle>
               </DialogHeader>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="title">Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -235,7 +269,9 @@ export default function AdminProducts() {
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -247,24 +283,41 @@ export default function AdminProducts() {
                       id="originalPrice"
                       type="number"
                       value={formData.originalPrice}
-                      onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          originalPrice: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="discountPrice">Discount Price (Optional)</Label>
+                    <Label htmlFor="discountPrice">
+                      Discount Price (Optional)
+                    </Label>
                     <Input
                       id="discountPrice"
                       type="number"
                       value={formData.discountPrice}
-                      onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          discountPrice: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="section">Section</Label>
-                  <Select value={formData.sectionId} onValueChange={(value) => setFormData({ ...formData, sectionId: value })}>
+                  <Select
+                    value={formData.sectionId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, sectionId: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select section" />
                     </SelectTrigger>
@@ -286,7 +339,7 @@ export default function AdminProducts() {
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) handleFileUpload(file, 'display');
+                        if (file) handleFileUpload(file, "display");
                       }}
                       className="mb-2"
                     />
@@ -311,24 +364,33 @@ export default function AdminProducts() {
                       multiple
                       onChange={(e) => {
                         const files = Array.from(e.target.files || []);
-                        files.forEach(file => handleFileUpload(file, 'product'));
+                        files.forEach((file) =>
+                          handleFileUpload(file, "product")
+                        );
                       }}
                       className="mb-2"
                     />
                     <div className="space-y-2">
-                      {formData.productFiles.map((file, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-gray-100 rounded">
-                          <span className="text-sm truncate">{file.split('/').pop()}</span>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeProductFile(index)}
+                      {formData.productFiles
+                        .filter(Boolean) // Filter out null/undefined values
+                        .map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-2 bg-gray-100 rounded"
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                            <span className="text-sm truncate">
+                              {file ? file.split("/").pop() : "Unnamed file"}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeProductFile(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -338,23 +400,31 @@ export default function AdminProducts() {
                     <Switch
                       id="featured"
                       checked={formData.isFeatured}
-                      onCheckedChange={(checked) => setFormData({ ...formData, isFeatured: checked })}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, isFeatured: checked })
+                      }
                     />
                     <Label htmlFor="featured">Featured</Label>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="active"
                       checked={formData.isActive}
-                      onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, isActive: checked })
+                      }
                     />
                     <Label htmlFor="active">Active</Label>
                   </div>
                 </div>
 
                 <Button type="submit" disabled={uploading} className="w-full">
-                  {uploading ? 'Uploading...' : editingProduct ? 'Update Product' : 'Create Product'}
+                  {uploading
+                    ? "Uploading..."
+                    : editingProduct
+                    ? "Update Product"
+                    : "Create Product"}
                 </Button>
               </form>
             </DialogContent>
@@ -381,11 +451,17 @@ export default function AdminProducts() {
                     )}
                   </div>
                 </div>
-                
-                <h3 className="font-semibold mb-2 line-clamp-2">{product.title}</h3>
-                <p className="text-sm text-gray-600 mb-2 line-clamp-2">{product.description}</p>
-                <p className="text-sm text-gray-500 mb-2">Section: {product.section.name}</p>
-                
+
+                <h3 className="font-semibold mb-2 line-clamp-2">
+                  {product.title}
+                </h3>
+                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                  {product.description}
+                </p>
+                <p className="text-sm text-gray-500 mb-2">
+                  Section: {product.section.name}
+                </p>
+
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     {product.discountPrice && (
@@ -393,12 +469,18 @@ export default function AdminProducts() {
                         ₹{product.discountPrice}
                       </span>
                     )}
-                    <span className={`${product.discountPrice ? 'line-through text-gray-500 ml-2' : 'text-lg font-bold'}`}>
+                    <span
+                      className={`${
+                        product.discountPrice
+                          ? "line-through text-gray-500 ml-2"
+                          : "text-lg font-bold"
+                      }`}
+                    >
                       ₹{product.originalPrice}
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex space-x-2">
                   <Button
                     variant="outline"
@@ -424,7 +506,9 @@ export default function AdminProducts() {
 
         {products.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No products found. Create your first product!</p>
+            <p className="text-gray-500">
+              No products found. Create your first product!
+            </p>
           </div>
         )}
       </div>

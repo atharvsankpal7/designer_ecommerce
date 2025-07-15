@@ -43,7 +43,7 @@ export function HeroSection() {
                 Browse Products <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-gray-900">
+            <Button asChild variant="outline" size="lg" className="border-white text-black">
               <Link href="/contact">
                 Get Custom Design
               </Link>
