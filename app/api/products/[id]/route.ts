@@ -60,35 +60,16 @@ export async function PUT(
     
     const data = await request.json();
     
-    // Clean the data - remove empty strings and invalid ObjectIds
-    const cleanData = { ...data };
-    
-    // Handle sectionId validation
-    if ('sectionId' in cleanData) {
-      if (!cleanData.sectionId || cleanData.sectionId === '' || cleanData.sectionId === null) {
-        return NextResponse.json({ 
-          error: 'Section ID is required and cannot be empty' 
-        }, { status: 400 });
-      }
-      
-      // Validate ObjectId format
-      if (!/^[0-9a-fA-F]{24}$/.test(cleanData.sectionId)) {
-        return NextResponse.json({ 
-          error: 'Invalid section ID format' 
-        }, { status: 400 });
-      }
+    // Remove empty sectionId to prevent casting errors
+    if (data.sectionId === '') {
+      delete data.sectionId;
     }
-    
-    // Remove any empty string fields that should be ObjectIds
-    Object.keys(cleanData).forEach(key => {
-      if (cleanData[key] === '' && key.includes('Id')) {
-        delete cleanData[key];
-      }
-    });
+ 
+    console.log(data)
     
     const product = await Product.findByIdAndUpdate(
       params.id,
-      cleanData,
+      data,
       { new: true, runValidators: true }
     ).populate('sectionId', 'name');
 
@@ -108,10 +89,10 @@ export async function PUT(
       isFeatured: product.isFeatured,
       isActive: product.isActive,
       createdAt: product.createdAt,
-      section: {
+      section: product.sectionId ? {
         id: product.sectionId._id.toString(),
         name: product.sectionId.name,
-      },
+      } : null,
     };
 
     return NextResponse.json({ 
