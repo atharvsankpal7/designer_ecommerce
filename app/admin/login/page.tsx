@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +11,6 @@ import { toast } from 'sonner';
 export default function AdminLogin() {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(false); // Track login success
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,17 +18,18 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
+      const result = await signIn('credentials', {
+        email: credentials.email,
+        password: credentials.password,
+        redirect: false,
       });
 
-      if (response.ok) {
-        setLoginSuccess(true); // Mark login as successful
-        toast.success('Login successful');
-      } else {
+      if (result?.error) {
         toast.error('Invalid credentials');
+      } else if (result?.ok) {
+        toast.success('Login successful');
+        router.push('/admin');
+        router.refresh(); // Refresh to update session
       }
     } catch (error) {
       toast.error('Login failed');
@@ -36,13 +37,6 @@ export default function AdminLogin() {
       setLoading(false);
     }
   };
-
-  // Use useEffect to handle navigation after login success
-  useEffect(() => {
-    if (loginSuccess) {
-      router.push('/admin');
-    }
-  }, [loginSuccess, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

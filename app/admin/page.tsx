@@ -1,13 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Package, ShoppingCart, Users, TrendingUp } from 'lucide-react';
+import { Package, ShoppingCart, Users, TrendingUp, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
@@ -16,8 +20,23 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
+    if (status === 'loading') return; // Still loading
+    
+    if (!session?.user?.isAdmin) {
+      router.push('/admin/login');
+      return;
+    }
+    
     fetchStats();
-  }, []);
+  }, [session, status, router]);
+
+  if (status === 'loading') {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (!session?.user?.isAdmin) {
+    return null; // Will redirect
+  }
 
   const fetchStats = async () => {
     try {
@@ -34,9 +53,18 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <Button asChild>
-            <Link href="/admin/products">Manage Products</Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild>
+              <Link href="/admin/products">Manage Products</Link>
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => signOut({ callbackUrl: '/admin/login' })}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

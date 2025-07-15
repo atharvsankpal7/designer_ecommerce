@@ -40,11 +40,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-     
+      if (user) {
+        token.isAdmin = user.isAdmin;
+      }
       return token;
     },
     async session({ session, token }) {
-     
+      if (session.user) {
+        session.user.isAdmin = token.isAdmin as boolean;
+      }
       return session;
     }
   },

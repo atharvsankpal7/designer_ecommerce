@@ -6,10 +6,16 @@ export async function GET() {
     const session = await auth();
     
     return NextResponse.json({
-      isAuthenticated: !!session,
-      isAdmin: session?.user?.isAdmin || false,
+      isAuthenticated: !!session?.user,
+      isAdmin: !!session?.user?.isAdmin,
+      user: session?.user || null,
     });
   } catch (error) {
-    return NextResponse.json({ isAuthenticated: false, isAdmin: false });
+    console.error('Auth check error:', error);
+    return NextResponse.json({ 
+      isAuthenticated: false, 
+      isAdmin: false, 
+      user: null 
+    });
   }
 }

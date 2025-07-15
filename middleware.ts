@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { auth } from '@/lib/auth';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Handle admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
     // Allow login page
@@ -10,9 +11,9 @@ export function middleware(request: NextRequest) {
     }
     
     // Check for admin authentication
-    const token = request.cookies.get('next-auth.session-token')?.value;
+    const session = await auth();
     
-    if (!token) {
+    if (!session?.user?.isAdmin) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
