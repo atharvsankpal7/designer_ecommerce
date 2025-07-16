@@ -225,9 +225,10 @@ const StyledWrapper = styled.div`
     width: 15px;
     height: 2px;
     top: 42%;
-    background: rgba(220, 220, 220, 0.6);
+    background: rgba(250, 204, 21, 0.8);
+    box-shadow: 0 0 4px rgba(250, 204, 21, 0.6);
     z-index: 2;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
   .top-curl {
     position: absolute;
@@ -235,20 +236,22 @@ const StyledWrapper = styled.div`
     height: 10px;
     border-radius: 50%;
     border-bottom-left-radius: 0px;
-    border: 2px solid rgba(220, 220, 220, 0.6);
+    border: 2px solid rgba(250, 204, 21, 0.8);
+    box-shadow: 0 0 4px rgba(250, 204, 21, 0.4);
     top: 24px;
     left: 15px;
     z-index: 2;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
   .bottom-wire {
     position: absolute;
     width: 15px;
     height: 2px;
     bottom: 42%;
-    background: rgba(220, 220, 220, 0.6);
+    background: rgba(250, 204, 21, 0.8);
+    box-shadow: 0 0 4px rgba(250, 204, 21, 0.6);
     z-index: 2;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
   .bottom-curl {
     position: absolute;
@@ -256,21 +259,23 @@ const StyledWrapper = styled.div`
     height: 10px;
     border-radius: 50%;
     border-top-left-radius: 0px;
-    border: 2px solid rgba(220, 220, 220, 0.6);
+    border: 2px solid rgba(250, 204, 21, 0.8);
+    box-shadow: 0 0 4px rgba(250, 204, 21, 0.4);
     bottom: 25px;
     left: 15px;
     z-index: 2;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
   .mid-wire {
     position: absolute;
     width: 2px;
     height: 15px;
-    background: rgba(220, 220, 220, 0.6);
+    background: rgba(250, 204, 21, 0.8);
+    box-shadow: 0 0 4px rgba(250, 204, 21, 0.6);
     top: 40%;
     left: 15px;
     z-index: 2;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
 
   .glow {
