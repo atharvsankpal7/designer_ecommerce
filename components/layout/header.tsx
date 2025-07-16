@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, Phone, Mail, Sparkles, Crown } from 'lucide-react';
+import Image from 'next/image';
+import { Menu, X, Phone, Sparkles, Crown } from 'lucide-react';
+import { motion } from "framer-motion";
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,7 +20,7 @@ export function Header() {
   }, []);
 
   return (
-    <motion.header 
+    <motion.div 
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/95 backdrop-blur-md shadow-xl border-b border-purple-100' 
@@ -33,15 +34,14 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           <Link href="/" className="group flex items-center space-x-2">
             <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <Crown className="w-6 h-6 text-white" />
+              <div className="w-10 h-10  rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                {/* <Crown className="w-6 h-6 text-white" /> */}
+                <Image src={"/header-logo.png"} width={100} height={100} alt='LOGO'/>
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
-                <Sparkles className="w-2 h-2 text-yellow-800" />
-              </div>
+              
             </div>
             <span className="text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              DesignCraft
+              SS Creation
             </span>
           </Link>
           
@@ -144,6 +144,6 @@ export function Header() {
           </motion.div>
         )}
       </div>
-    </motion.header>
+    </motion.div>
   );
 }

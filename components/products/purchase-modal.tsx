@@ -98,7 +98,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
             amount: data.amount,
             currency: 'INR',
-            name: 'DesignCraft',
+            name: 'SS Creation',
             description: product?.title,
             order_id: data.orderId,
             handler: async (response: any) => {

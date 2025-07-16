@@ -7,7 +7,7 @@ import { Providers } from '@/components/providers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'DesignCraft - Premium Graphic Design Templates',
+  title: 'SS Creation - Premium Graphic Design Templates',
   description: 'Professional graphic design templates for festivals, celebrations, and business needs. Download instantly after purchase.',
 };
 

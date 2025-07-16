@@ -11,7 +11,7 @@ export default function About() {
         <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl font-bold mb-6">About DesignCraft</h1>
+              <h1 className="text-4xl font-bold mb-6">About SS Creation</h1>
               <p className="text-xl text-gray-600 mb-8">
                 We are passionate graphic designers dedicated to bringing your creative visions to life through stunning visual designs.
               </p>
@@ -61,7 +61,7 @@ export default function About() {
               <h2 className="text-3xl font-bold text-center mb-12">Our Story</h2>
               <div className="prose prose-lg max-w-none">
                 <p className="text-gray-600 mb-6">
-                  DesignCraft was founded with a simple belief: great design should be accessible to everyone. 
+                  SS Creation was founded with a simple belief: great design should be accessible to everyone. 
                   We started as a small team of passionate designers who wanted to democratize the world of 
                   graphic design by creating beautiful, professional templates that anyone can use.
                 </p>

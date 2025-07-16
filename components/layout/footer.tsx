@@ -1,56 +1,48 @@
 import Link from "next/link"
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Heart, Crown, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export function Footer() {
   return (
-    <footer className="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(120,119,198,0.02)_50%,transparent_75%)]"></div>
+    <footer className="bg-gradient-to-br from-orange-100 via-amber-50 to-rose-100 text-gray-800 relative overflow-hidden border-t border-orange-200/50">
+      {/* Background elements */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-200/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(251,146,60,0.08)_50%,transparent_75%)]"></div>
+      </div>
       
       <div className="container mx-auto px-4 lg:px-6 py-16 relative z-10">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-12">
           {/* Brand Section */}
-          <div className="lg:col-span-1">
-            <div className="mb-8">
-              {/* Logo */}
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-                    <Crown className="w-7 h-7 text-white" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-2 h-2 text-yellow-900" />
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-300 bg-clip-text text-transparent tracking-tight">
-                    DesignCraft
-                  </span>
-                  <span className="text-xs text-gray-400 font-medium -mt-1 tracking-wide">
-                    Premium Templates
-                  </span>
-                </div>
+          <div className="lg:col-span-1 flex flex-col">
+            <div className="mb-6">
+              <div className="w-72 h-auto mb-6">
+                <Image 
+                  src="/footer-logo.jpg" 
+                  width={400} 
+                  height={150} 
+                  alt="SS Creation Logo"
+                  className="object-contain"
+                />
               </div>
-              
-              <p className="text-gray-300 mb-8 leading-relaxed text-sm max-w-sm">
+              <p className="text-gray-600 mb-6 leading-relaxed text-sm">
                 Crafting exceptional graphic designs that transform your vision into stunning visual experiences. Professional quality, modern aesthetics, instant downloads.
               </p>
             </div>
             
             {/* Social Links */}
-            <div className="flex space-x-3">
+            <div className="flex space-x-2 mt-auto">
               {[
-                { icon: Facebook, href: "#", label: "Facebook", color: "hover:bg-blue-600/20" },
-                { icon: Instagram, href: "#", label: "Instagram", color: "hover:bg-pink-600/20" },
-                { icon: Twitter, href: "#", label: "Twitter", color: "hover:bg-sky-600/20" }
+                { icon: Facebook, href: "#", label: "Facebook", color: "hover:bg-blue-500/20" },
+                { icon: Instagram, href: "#", label: "Instagram", color: "hover:bg-pink-500/20" },
+                { icon: Twitter, href: "#", label: "Twitter", color: "hover:bg-sky-500/20" }
               ].map((social) => (
                 <Button
                   key={social.label}
                   size="icon"
                   variant="ghost"
-                  className={`w-10 h-10 bg-white/5 border border-white/10 ${social.color} text-gray-300 hover:text-white rounded-xl transition-all duration-300 hover:scale-105 hover:border-white/20`}
+                  className={`w-9 h-9 bg-white/60 backdrop-blur-sm border border-orange-200/60 ${social.color} text-gray-600 hover:text-gray-800 rounded-lg transition-all duration-300 hover:scale-105 hover:border-orange-300/60`}
                   asChild
                 >
                   <a href={social.href} aria-label={social.label}>
@@ -63,9 +55,9 @@ export function Footer() {
           
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold mb-6 text-white relative">
+            <h4 className="text-lg font-semibold mb-6 text-gray-800 flex items-center">
+              <Sparkles className="h-4 w-4 text-orange-500 mr-2" />
               Quick Links
-              <div className="absolute -bottom-2 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
             </h4>
             <ul className="space-y-3">
               {[
@@ -77,9 +69,9 @@ export function Footer() {
                 <li key={link.href}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-300 hover:text-white transition-all duration-300 text-sm group flex items-center"
+                    className="text-gray-600 hover:text-gray-800 transition-all duration-200 text-sm group flex items-center hover:pl-1"
                   >
-                    <span className="w-1 h-1 bg-purple-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="w-2 h-0.5 bg-orange-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                     {link.label}
                   </Link>
                 </li>
@@ -89,9 +81,9 @@ export function Footer() {
           
           {/* Categories */}
           <div>
-            <h4 className="text-lg font-semibold mb-6 text-white relative">
+            <h4 className="text-lg font-semibold mb-6 text-gray-800 flex items-center">
+              <Crown className="h-4 w-4 text-amber-500 mr-2" />
               Categories
-              <div className="absolute -bottom-2 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
             </h4>
             <ul className="space-y-3">
               {[
@@ -103,9 +95,9 @@ export function Footer() {
                 <li key={link.href}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-300 hover:text-white transition-all duration-300 text-sm group flex items-center"
+                    className="text-gray-600 hover:text-gray-800 transition-all duration-200 text-sm group flex items-center hover:pl-1"
                   >
-                    <span className="w-1 h-1 bg-purple-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="w-2 h-0.5 bg-orange-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                     {link.label}
                   </Link>
                 </li>
@@ -115,51 +107,51 @@ export function Footer() {
           
           {/* Contact Info */}
           <div>
-            <h4 className="text-lg font-semibold mb-6 text-white relative">
-              Get in Touch
-              <div className="absolute -bottom-2 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+            <h4 className="text-lg font-semibold mb-6 text-gray-800 flex items-center">
+              <MapPin className="h-4 w-4 text-rose-500 mr-2" />
+              Contact Us
             </h4>
             <div className="space-y-4">
               {[
-                { icon: Phone, text: "+91-9876543210", href: "tel:+91-9876543210" },
-                { icon: Mail, text: "info@designcraft.com", href: "mailto:info@designcraft.com" },
-                { icon: MapPin, text: "Mumbai, Maharashtra", href: "#" }
+                { icon: Phone, text: "+91-9876543210", href: "tel:+91-9876543210", color: "text-emerald-600" },
+                { icon: Mail, text: "info@sscreation.com", href: "mailto:info@sscreation.com", color: "text-blue-600" },
+                { icon: MapPin, text: "Mumbai, Maharashtra", href: "#", color: "text-rose-600" }
               ].map((contact, index) => (
-                <a
+                <Link
                   key={index}
                   href={contact.href}
-                  className="flex items-center text-gray-300 hover:text-white transition-all duration-300 group"
+                  className="flex items-center text-gray-600 hover:text-gray-800 transition-all duration-200 group"
                 >
-                  <div className="w-9 h-9 bg-gradient-to-br from-purple-600/20 to-purple-700/20 border border-purple-500/20 rounded-xl flex items-center justify-center mr-3 group-hover:from-purple-600/30 group-hover:to-purple-700/30 group-hover:border-purple-500/30 transition-all duration-300">
-                    <contact.icon className="h-4 w-4 text-purple-400" />
+                  <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-amber-100 border border-orange-200/60 rounded-lg flex items-center justify-center mr-3 group-hover:bg-gradient-to-br group-hover:from-orange-200 group-hover:to-amber-200 group-hover:border-orange-300/60 transition-all duration-300">
+                    <contact.icon className={`h-3.5 w-3.5 ${contact.color}`} />
                   </div>
                   <span className="text-sm font-medium">{contact.text}</span>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
         </div>
         
         {/* Bottom Section */}
-        <div className="border-t border-gray-700/30 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
-              <p className="text-gray-400 text-sm font-medium">
-                © 2024 DesignCraft. All rights reserved.
+        <div className="border-t border-orange-200/60 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-sm">
+              <p className="text-gray-500">
+                © {new Date().getFullYear()} SS Creation. All rights reserved.
               </p>
-              <div className="flex space-x-4 text-xs">
-                <Link href="/privacy" className="text-gray-400 hover:text-gray-300 transition-colors">
+              <div className="flex gap-4">
+                <Link href="/privacy" className="text-gray-500 hover:text-gray-700 transition-colors">
                   Privacy Policy
                 </Link>
-                <Link href="/terms" className="text-gray-400 hover:text-gray-300 transition-colors">
+                <Link href="/terms" className="text-gray-500 hover:text-gray-700 transition-colors">
                   Terms of Service
                 </Link>
               </div>
             </div>
             
-            <div className="flex items-center text-gray-400 text-sm">
-              <span>Crafted with</span>
-              <Heart className="h-4 w-4 mx-2 text-red-400 fill-current animate-pulse" />
+            <div className="flex items-center text-gray-500 text-sm">
+              <span>Made with</span>
+              <Heart className="h-3.5 w-3.5 mx-1.5 text-rose-500 fill-current animate-pulse" />
               <span>in India</span>
             </div>
           </div>
