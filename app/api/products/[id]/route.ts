@@ -64,9 +64,6 @@ export async function PUT(
     if (data.sectionId === '') {
       delete data.sectionId;
     }
- 
-    console.log(data)
-    
     const product = await Product.findByIdAndUpdate(
       params.id,
       data,
