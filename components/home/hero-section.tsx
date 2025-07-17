@@ -232,7 +232,7 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.1 }}
           >
             <span className="text-gray-800 block mb-4 drop-shadow-2xl">
-              Elevate Your
+              SS Creation
             </span>
             <span className="block">
               <span className={cn(
