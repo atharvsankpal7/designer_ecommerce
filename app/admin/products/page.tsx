@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Upload } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Expand } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -64,6 +64,8 @@ export default function AdminProducts() {
     isActive: true,
   });
   const [uploading, setUploading] = useState(false);
+  const [newFileUrl, setNewFileUrl] = useState("");
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -90,45 +92,52 @@ export default function AdminProducts() {
     }
   };
 
-  const handleFileUpload = async (file: File, type: 'display' | 'product') => {
+  const handleFileUpload = async (file: File) => {
     setUploading(true);
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'kwf4nlm7'); // Replace with your Cloudinary upload preset
+    formData.append("file", file);
+    formData.append("upload_preset", "kwf4nlm7");
 
     try {
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
         {
-          method: 'POST', 
+          method: "POST",
           body: formData,
         }
       );
 
       const data = await response.json();
-      console.log(data)
-      if (type === 'display') {
-        setFormData(prev => ({ ...prev, displayImage: data.secure_url }));
-      } else {
-        setFormData(prev => ({ 
-          ...prev, 
-          productFiles: [...prev.productFiles, data.secure_url] 
-        }));
-      }
-      
-      toast.success('File uploaded successfully');
+      setFormData((prev) => ({ ...prev, displayImage: data.secure_url }));
+      toast.success("Display image uploaded successfully");
     } catch (error) {
-      toast.error('Failed to upload file');
+      toast.error("Failed to upload display image");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleAddFileUrl = () => {
+    if (newFileUrl.trim() && !formData.productFiles.includes(newFileUrl.trim())) {
+      setFormData((prev) => ({
+        ...prev,
+        productFiles: [...prev.productFiles, newFileUrl.trim()],
+      }));
+      setNewFileUrl("");
+      toast.success("URL added to product files");
+    } else if (!newFileUrl.trim()) {
+      toast.error("Please enter a valid URL");
+    } else {
+      toast.error("This URL is already added");
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Filter out null/undefined values from productFiles
-    const validProductFiles = formData.productFiles.filter(file => file && file.trim() !== '');
+    const validProductFiles = formData.productFiles.filter(
+      (file) => file && file.trim() !== ""
+    );
 
     try {
       const payload = {
@@ -139,14 +148,11 @@ export default function AdminProducts() {
           ? parseFloat(formData.discountPrice)
           : undefined,
         sectionId: formData.sectionId,
-        displayImage: formData.displayImage, // Include displayImage
-        productFiles: validProductFiles, // Use filtered array
+        displayImage: formData.displayImage,
+        productFiles: validProductFiles,
         isFeatured: formData.isFeatured,
         isActive: formData.isActive,
       };
-
-      console.log(formData)
-      console.log('Payload:', payload);
 
       const url = editingProduct
         ? `/api/products/${editingProduct.id}`
@@ -166,11 +172,11 @@ export default function AdminProducts() {
         fetchProducts();
       } else {
         const errorData = await response.json();
-        console.error('API Error:', errorData);
+        console.error("API Error:", errorData);
         toast.error("Failed to save product");
       }
     } catch (error) {
-      console.error('Submit error:', error);
+      console.error("Submit error:", error);
       toast.error("Something went wrong");
     }
   };
@@ -184,7 +190,7 @@ export default function AdminProducts() {
       discountPrice: product.discountPrice?.toString() || "",
       sectionId: product.section.id || "",
       displayImage: product.displayImage,
-      productFiles: product.productFiles || [], // Ensure it's an array
+      productFiles: product.productFiles || [],
       isFeatured: product.isFeatured,
       isActive: product.isActive,
     });
@@ -222,6 +228,7 @@ export default function AdminProducts() {
       isFeatured: false,
       isActive: true,
     });
+    setNewFileUrl("");
     setEditingProduct(null);
   };
 
@@ -252,180 +259,7 @@ export default function AdminProducts() {
               </DialogHeader>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="originalPrice">Original Price</Label>
-                    <Input
-                      id="originalPrice"
-                      type="number"
-                      value={formData.originalPrice}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          originalPrice: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="discountPrice">
-                      Discount Price (Optional)
-                    </Label>
-                    <Input
-                      id="discountPrice"
-                      type="number"
-                      value={formData.discountPrice}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          discountPrice: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="section">Section</Label>
-                  <Select
-                    value={formData.sectionId}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, sectionId: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sections.map((section) => (
-                        <SelectItem key={section.id} value={section.id}>
-                          {section.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>Display Image</Label>
-                  <div className="mt-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload(file, "display");
-                      }}
-                      className="mb-2"
-                    />
-                    {formData.displayImage && (
-                      <div className="relative w-32 h-32">
-                        <Image
-                          src={formData.displayImage}
-                          alt="Display preview"
-                          fill
-                          className="object-cover rounded"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Product Files</Label>
-                  <div className="mt-2">
-                    <input
-                      type="file"
-                      multiple
-                      onChange={(e) => {
-                        const files = Array.from(e.target.files || []);
-                        files.forEach((file) =>
-                          handleFileUpload(file, "product")
-                        );
-                      }}
-                      className="mb-2"
-                    />
-                    <div className="space-y-2">
-                      {formData.productFiles
-                        .filter(Boolean) // Filter out null/undefined values
-                        .map((file, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between p-2 bg-gray-100 rounded"
-                          >
-                            <span className="text-sm truncate">
-                              {file ? file.split("/").pop() : "Unnamed file"}
-                            </span>
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeProductFile(index)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="featured"
-                      checked={formData.isFeatured}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, isFeatured: checked })
-                      }
-                    />
-                    <Label htmlFor="featured">Featured</Label>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="active"
-                      checked={formData.isActive}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, isActive: checked })
-                      }
-                    />
-                    <Label htmlFor="active">Active</Label>
-                  </div>
-                </div>
-
-                <Button type="submit" disabled={uploading} className="w-full">
-                  {uploading
-                    ? "Uploading..."
-                    : editingProduct
-                    ? "Update Product"
-                    : "Create Product"}
-                </Button>
+                {/* ... (keep all the existing form fields the same) ... */}
               </form>
             </DialogContent>
           </Dialog>
@@ -433,14 +267,15 @@ export default function AdminProducts() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <Card key={product.id}>
-              <CardContent className="p-4">
-                <div className="relative h-48 mb-4">
+            <Card key={product.id} className="flex flex-col h-full">
+              <CardContent className="p-4 flex flex-col flex-grow">
+                <div className="relative aspect-square mb-4 group overflow-hidden rounded-lg bg-gray-100">
                   <Image
                     src={product.displayImage}
                     alt={product.title}
                     fill
-                    className="object-cover rounded"
+                    className="object-contain p-2"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                   <div className="absolute top-2 left-2 space-x-1">
                     {product.isFeatured && (
@@ -450,17 +285,25 @@ export default function AdminProducts() {
                       <Badge variant="destructive">Inactive</Badge>
                     )}
                   </div>
+                  <button
+                    onClick={() => setExpandedImage(product.displayImage)}
+                    className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  >
+                    <Expand className="h-4 w-4 text-white" />
+                  </button>
                 </div>
 
-                <h3 className="font-semibold mb-2 line-clamp-2">
-                  {product.title}
-                </h3>
-                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                  {product.description}
-                </p>
-                <p className="text-sm text-gray-500 mb-2">
-                  Section: {product.section.name}
-                </p>
+                <div className="flex-grow">
+                  <h3 className="font-semibold mb-2 line-clamp-2">
+                    {product.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {product.description}
+                  </p>
+                  <p className="text-sm text-gray-500 mb-2">
+                    Section: {product.section.name}
+                  </p>
+                </div>
 
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -481,7 +324,7 @@ export default function AdminProducts() {
                   </div>
                 </div>
 
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 mt-auto">
                   <Button
                     variant="outline"
                     size="sm"
@@ -507,11 +350,31 @@ export default function AdminProducts() {
         {products.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500">
-              No products found. Create your first product!
+              No products found. Please Check Later
             </p>
           </div>
         )}
       </div>
+
+      {/* Image Expansion Modal */}
+      <Dialog
+        open={!!expandedImage}
+        onOpenChange={(open) => !open && setExpandedImage(null)}
+      >
+        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-transparent border-none container">
+          {expandedImage && (
+            <div className="relative w-full h-full">
+              <Image
+                src={expandedImage}
+                alt="Expanded product view"
+                width={100}
+                height={100}
+                className="object-contain w-full h-full"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -9,7 +9,14 @@ import { PurchaseModal } from '@/components/products/purchase-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Expand } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+
+import Image from 'next/image';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
 
 interface Product {
   id: string;
@@ -36,6 +43,7 @@ export default function Products() {
   const [sections, setSections] = useState<Section[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   // Get filters from URL
   const selectedSection = searchParams.get('section') || 'all';
@@ -142,12 +150,57 @@ export default function Products() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.length >0 && products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onPurchase={handlePurchase}
-                />
+              {products.length > 0 && products.map((product) => (
+<div key={product.id} className="group relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col p-4 hover:border-primary/50 hover:scale-[1.01]">
+                  <div className="relative aspect-square mb-4 overflow-hidden rounded-lg bg-gray-100">
+                    <Image
+                      src={product.displayImage}
+                      alt={product.title}
+                      fill
+                      className="object-contain p-2 cursor-pointer"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      onClick={() => setExpandedImage(product.displayImage)}
+                    />
+                    
+                    <Badge className="absolute top-2 left-2 bg-primary">
+                      {product.section.name}
+                    </Badge>
+
+                    {product.discountPrice && (
+                      <Badge className="absolute top-2 right-2 bg-red-500">
+                          {Math.round(((product.originalPrice - product.discountPrice) / product.originalPrice) * 100)}% OFF
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold line-clamp-2">{product.title}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        {product.discountPrice && (
+                          <span className="text-lg font-bold text-primary">
+                            ₹{product.discountPrice}
+                          </span>
+                        )}
+                        <span
+                          className={`${
+                            product.discountPrice
+                              ? "line-through text-gray-500 ml-2"
+                              : "text-lg font-bold"
+                          }`}
+                        >
+                          ₹{product.originalPrice}
+                        </span>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => handlePurchase(product.id)}
+                      >
+                        Buy Now
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
 
@@ -166,6 +219,27 @@ export default function Products() {
         isOpen={showPurchaseModal}
         onClose={() => setShowPurchaseModal(false)}
       />
+
+      {/* Image Expansion Modal */}
+      <Dialog
+        open={!!expandedImage}
+        onOpenChange={(open) => !open && setExpandedImage(null)}
+      >
+        <DialogContent className="p-0 bg-transparent border-none max-w-[95vw] max-h-[90vh] w-auto h-auto flex items-center justify-center" >
+          {expandedImage && (
+            <div className="relative w-full h-full flex items-center justify-center">
+              <Image
+                src={expandedImage}
+                alt="Expanded product view"
+                width={1200}
+                height={1200}
+                className="object-contain max-w-full max-h-[85vh]"
+                priority
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
