@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ProductCard } from '@/components/products/product-card';
@@ -28,17 +29,25 @@ interface Section {
 }
 
 export default function Products() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
-  const [selectedSection, setSelectedSection] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
+  // Get filters from URL
+  const selectedSection = searchParams.get('section') || 'all';
+  const searchTerm = searchParams.get('search') || '';
+
   useEffect(() => {
     fetchProducts();
-    fetchSections();
   }, [selectedSection, searchTerm]);
+
+  useEffect(() => {
+    fetchSections();
+  }, []);
 
   const fetchProducts = async () => {
     try {
@@ -64,6 +73,31 @@ export default function Products() {
     }
   };
 
+  const updateURL = (newSection: string, newSearchTerm: string) => {
+    const params = new URLSearchParams();
+    
+    if (newSection !== 'all') {
+      params.set('section', newSection);
+    }
+    
+    if (newSearchTerm.trim()) {
+      params.set('search', newSearchTerm.trim());
+    }
+    
+    const queryString = params.toString();
+    const newURL = queryString ? `/products?${queryString}` : '/products';
+    
+    router.push(newURL);
+  };
+
+  const handleSectionChange = (newSection: string) => {
+    updateURL(newSection, searchTerm);
+  };
+
+  const handleSearchChange = (newSearchTerm: string) => {
+    updateURL(selectedSection, newSearchTerm);
+  };
+
   const handlePurchase = (productId: string) => {
     const product = products.find(p => p.id === productId);
     if (product) {
@@ -86,12 +120,12 @@ export default function Products() {
                 <Input
                   placeholder="Search products..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10"
                 />
               </div>
               
-              <Select value={selectedSection} onValueChange={setSelectedSection}>
+              <Select value={selectedSection} onValueChange={handleSectionChange}>
                 <SelectTrigger className="w-full md:w-48">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Filter by section" />
@@ -99,7 +133,7 @@ export default function Products() {
                 <SelectContent>
                   <SelectItem value="all">All Sections</SelectItem>
                   {sections.map((section) => (
-                    <SelectItem key={section.id} value={section.id}>
+                    <SelectItem key={section.id} value={section.name}>
                       {section.name}
                     </SelectItem>
                   ))}
@@ -108,7 +142,7 @@ export default function Products() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
+              {products.length >0 && products.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}

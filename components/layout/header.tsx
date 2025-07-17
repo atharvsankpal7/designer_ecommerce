@@ -26,9 +26,7 @@ export function Header() {
           ? 'bg-white/95 backdrop-blur-md shadow-xl border-b border-purple-100' 
           : 'bg-white/90 backdrop-blur-sm shadow-sm'
       }`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6 }}
+    
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">

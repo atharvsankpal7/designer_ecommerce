@@ -45,9 +45,9 @@ export function Footer() {
                   className={`w-9 h-9 bg-white/60 backdrop-blur-sm border border-orange-200/60 ${social.color} text-gray-600 hover:text-gray-800 rounded-lg transition-all duration-300 hover:scale-105 hover:border-orange-300/60`}
                   asChild
                 >
-                  <a href={social.href} aria-label={social.label}>
+                  <Link href={social.href} aria-label={social.label}>
                     <social.icon className="h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
               ))}
             </div>
@@ -87,10 +87,10 @@ export function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                { href: '/products?section=wedding', label: 'Wedding Designs' },
-                { href: '/products?section=business', label: 'Business Cards' },
-                { href: '/products?section=social', label: 'Social Media' },
-                { href: '/products?section=custom', label: 'Custom Designs' }
+                { href: '/products?section=Wedding', label: 'Wedding Designs' },
+                { href: '/products?section=Business', label: 'Business Cards' },
+                { href: '/products?section=Social', label: 'Social Media' },
+                { href: '/products?section=Custom', label: 'Custom Designs' }
               ].map((link) => (
                 <li key={link.href}>
                   <Link 
