@@ -273,7 +273,13 @@ export default function BundleDetail() {
                           Individual
                         </Badge>
                       </div>
+                    <Button asChild>
+                      <Link href={`products/${product.id}`}>
+                      Check Item
+                      </Link>
+                    </Button>
                     </div>
+                      
                   </CardContent>
                 </Card>
               ))}

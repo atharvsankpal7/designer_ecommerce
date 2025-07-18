@@ -22,9 +22,11 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Upload, Expand } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Expand, ArrowLeftIcon } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import Link from "next/link";
+import { IconLeft } from "react-day-picker";
 
 interface Product {
   id: string;
@@ -243,7 +245,15 @@ export default function AdminProducts() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
+          <div className="flex gap-3">
+    <Button variant="outline" asChild className="flex " >
+      <Link href="/admin">
+      <ArrowLeftIcon/>
+      Panel
+      </Link>
+      </Button>
           <h1 className="text-3xl font-bold">Product Management</h1>
+          </div>
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>
               <Button onClick={resetForm}>
@@ -259,7 +269,180 @@ export default function AdminProducts() {
               </DialogHeader>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* ... (keep all the existing form fields the same) ... */}
+                <div>
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="originalPrice">Original Price</Label>
+                    <Input
+                      id="originalPrice"
+                      type="number"
+                      value={formData.originalPrice}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          originalPrice: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="discountPrice">
+                      Discount Price (Optional)
+                    </Label>
+                    <Input
+                      id="discountPrice"
+                      type="number"
+                      value={formData.discountPrice}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          discountPrice: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="section">Section</Label>
+                  <Select
+                    value={formData.sectionId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, sectionId: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sections.map((section) => (
+                        <SelectItem key={section.id} value={section.id}>
+                          {section.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Display Image</Label>
+                  <div className="mt-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file);
+                      }}
+                      className="mb-2"
+                    />
+                    {formData.displayImage && (
+                      <div className="relative w-32 h-32">
+                        <Image
+                          src={formData.displayImage}
+                          alt="Display preview"
+                          fill
+                          className="object-cover rounded"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Product Files</Label>
+                  <div className="mt-2">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        files.forEach((file) =>
+                          handleFileUpload(file)
+                        );
+                      }}
+                      className="mb-2"
+                    />
+                    <div className="space-y-2">
+                      {formData.productFiles
+                        .filter(Boolean) // Filter out null/undefined values
+                        .map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-2 bg-gray-100 rounded"
+                          >
+                            <span className="text-sm truncate">
+                              {file ? file.split("/").pop() : "Unnamed file"}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeProductFile(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="featured"
+                      checked={formData.isFeatured}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, isFeatured: checked })
+                      }
+                    />
+                    <Label htmlFor="featured">Featured</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="active"
+                      checked={formData.isActive}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, isActive: checked })
+                      }
+                    />
+                    <Label htmlFor="active">Active</Label>
+                  </div>
+                </div>
+
+                <Button type="submit" disabled={uploading} className="w-full">
+                  {uploading
+                    ? "Uploading..."
+                    : editingProduct
+                    ? "Update Product"
+                    : "Create Product"}
+                </Button>
               </form>
             </DialogContent>
           </Dialog>

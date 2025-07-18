@@ -73,15 +73,7 @@ export function Header() {
               <span className="font-medium">+91-9876543210</span>
             </a>
             
-            <Button
-              asChild
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-            >
-              <Link href="/contact">
-                Get Started
-                <Sparkles className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+           
           </div>
 
           <Button
@@ -130,15 +122,7 @@ export function Header() {
                   +91-9876543210
                 </a>
                 
-                <Button
-                  asChild
-                  className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full font-semibold"
-                >
-                  <Link href="/contact">
-                    Get Started
-                    <Sparkles className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                
               </div>
             </div>
           </motion.div>

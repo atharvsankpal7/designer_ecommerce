@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { Product, Section } from '@/lib/models';
+import mongoose from 'mongoose';
 
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
     
     const { searchParams } = new URL(request.url);
-    const section = searchParams.get('section');
+    const section = searchParams.get('section')?.toLowerCase();
     const search = searchParams.get('search');
     const featured = searchParams.get('featured');
     const newProducts = searchParams.get('new');
@@ -16,9 +17,22 @@ export async function GET(request: NextRequest) {
     const query: any = { isActive: true };
 
     if (section && section !== 'all') {
-      query.sectionId = section;
-    }
-
+  try {
+        // First try to find the section by name
+        const sectionDoc = await Section.findOne({ 
+          name: { $regex: new RegExp(section, 'i') } 
+        });
+        
+        if (sectionDoc) {
+          query.sectionId = sectionDoc._id;
+        } else if (mongoose.Types.ObjectId.isValid(section)) {
+          // If not found by name but is a valid ObjectId, use it directly
+          query.sectionId = section;
+        }
+  } catch (error) {
+        console.error('Error finding section:', error);
+  }
+}
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -56,7 +70,7 @@ export async function GET(request: NextRequest) {
       isFeatured: product.isFeatured,
       createdAt: product.createdAt,
       section: {
-        name: product.sectionId.name,
+        name: product.sectionId?.name || 'Unknown',
       },
     }));
 
