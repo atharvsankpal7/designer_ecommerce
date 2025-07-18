@@ -64,6 +64,7 @@ export function Footer() {
                 { href: '/', label: 'Home' },
                 { href: '/about', label: 'About Us' },
                 { href: '/products', label: 'Products' },
+                { href: '/bundles', label: 'Bundles' },
                 { href: '/contact', label: 'Contact' }
               ].map((link) => (
                 <li key={link.href}>
@@ -88,9 +89,9 @@ export function Footer() {
             <ul className="space-y-3">
               {[
                 { href: '/products?section=Wedding', label: 'Wedding Designs' },
+                { href: '/bundles', label: 'Design Bundles' },
                 { href: '/products?section=Business', label: 'Business Cards' },
                 { href: '/products?section=Social', label: 'Social Media' },
-                { href: '/products?section=Custom', label: 'Custom Designs' }
               ].map((link) => (
                 <li key={link.href}>
                   <Link 

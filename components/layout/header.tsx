@@ -48,6 +48,7 @@ export function Header() {
               { href: '/', label: 'Home' },
               { href: '/about', label: 'About' },
               { href: '/products', label: 'Products' },
+              { href: '/bundles', label: 'Bundles' },
               { href: '/contact', label: 'Contact' }
             ].map((item) => (
               <Link 
@@ -107,6 +108,7 @@ export function Header() {
                 { href: '/', label: 'Home' },
                 { href: '/about', label: 'About' },
                 { href: '/products', label: 'Products' },
+                { href: '/bundles', label: 'Bundles' },
                 { href: '/contact', label: 'Contact' }
               ].map((item) => (
                 <Link 

@@ -120,6 +120,9 @@ export default function AdminDashboard() {
                 <Link href="/admin/sections">Manage Sections</Link>
               </Button>
               <Button asChild variant="outline" className="w-full justify-start">
+                <Link href="/admin/bundles">Manage Bundles</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full justify-start">
                 <Link href="/admin/orders">View Orders</Link>
               </Button>
             </CardContent>

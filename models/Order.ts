@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IOrder extends Document {
   email: string;
   productId: mongoose.Types.ObjectId;
+  bundleId?: mongoose.Types.ObjectId;
   amount: number;
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
@@ -20,7 +21,10 @@ const OrderSchema = new Schema<IOrder>({
   productId: {
     type: Schema.Types.ObjectId,
     ref: 'Product',
-    required: true,
+  },
+  bundleId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Bundle',
   },
   amount: {
     type: Number,
@@ -44,7 +48,8 @@ const OrderSchema = new Schema<IOrder>({
   timestamps: true,
 });
 
-// Compound index for email and productId
+// Compound indexes for email with productId and bundleId
 OrderSchema.index({ email: 1, productId: 1 });
+OrderSchema.index({ email: 1, bundleId: 1 });
 
 export default mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);

@@ -29,6 +29,30 @@ export async function sendVerificationEmail(email: string, code: string) {
   await transporter.sendMail(mailOptions);
 }
 
+export async function sendBundleFiles(email: string, bundleName: string, files: string[]) {
+  const attachments = files.map(file => ({
+    filename: file.split('/').pop(),
+    path: file
+  }));
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM,
+    to: email,
+    subject: `Your Bundle Purchase: ${bundleName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Thank you for your bundle purchase!</h2>
+        <p>Your bundle files for <strong>${bundleName}</strong> are attached to this email.</p>
+        <p>This bundle includes multiple premium designs with all source files.</p>
+        <p>If you have any questions, please contact our support team.</p>
+      </div>
+    `,
+    attachments
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
 export async function sendProductFiles(email: string, productTitle: string, files: string[]) {
   const attachments = files.map(file => ({
     filename: file.split('/').pop(),

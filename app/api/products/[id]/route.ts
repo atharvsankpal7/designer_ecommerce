@@ -11,7 +11,16 @@ export async function GET(
   try {
     await connectDB();
     
-    const product = await Product.findById(params.id)
+    const { id } = params;
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Product ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const product = await Product.findById(id)
       .populate('sectionId', 'name')
       .exec();
 
@@ -31,10 +40,10 @@ export async function GET(
       isFeatured: product.isFeatured,
       isActive: product.isActive,
       createdAt: product.createdAt,
-      section: {
+      section: product.sectionId ? {
         id: product.sectionId._id.toString(),
         name: product.sectionId.name,
-      },
+      } : null,
     };
 
     return NextResponse.json(transformedProduct);
@@ -64,6 +73,7 @@ export async function PUT(
     if (data.sectionId === '') {
       delete data.sectionId;
     }
+
     const product = await Product.findByIdAndUpdate(
       params.id,
       data,

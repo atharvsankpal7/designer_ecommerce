@@ -4,6 +4,7 @@ import Section from '@/models/Section';
 import User from '@/models/User';
 import Order from '@/models/Order';
 import ContactForm from '@/models/ContactForm';
+import Bundle from '@/models/Bundle';
 
 // Export all models to ensure they're registered
 export {
@@ -12,4 +13,5 @@ export {
   User,
   Order,
   ContactForm,
+  Bundle,
 };
