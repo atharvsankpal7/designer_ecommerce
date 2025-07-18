@@ -1,0 +1,245 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
+import { ProductCard } from '@/components/products/product-card';
+import { PurchaseModal } from '@/components/products/purchase-modal';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, Filter, Expand } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+
+import Image from 'next/image';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
+
+interface Product {
+  id: string;
+  title: string;
+  description: string;
+  displayImage: string;
+  originalPrice: number;
+  discountPrice?: number;
+  section: {
+    name: string;
+  };
+}
+
+interface Section {
+  id: string;
+  name: string;
+}
+
+export default function Products() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
+
+  // Get filters from URL
+  const selectedSection = searchParams.get('section') || 'all';
+  const searchTerm = searchParams.get('search') || '';
+
+  useEffect(() => {
+    fetchProducts();
+  }, [selectedSection, searchTerm]);
+
+  useEffect(() => {
+    fetchSections();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (selectedSection !== 'all') params.append('section', selectedSection);
+      if (searchTerm) params.append('search', searchTerm);
+      
+      const response = await fetch(`/api/products?${params}`);
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  const fetchSections = async () => {
+    try {
+      const response = await fetch('/api/sections');
+      const data = await response.json();
+      setSections(data);
+    } catch (error) {
+      console.error('Error fetching sections:', error);
+    }
+  };
+
+  const updateURL = (newSection: string, newSearchTerm: string) => {
+    const params = new URLSearchParams();
+    
+    if (newSection !== 'all') {
+      params.set('section', newSection);
+    }
+    
+    if (newSearchTerm.trim()) {
+      params.set('search', newSearchTerm.trim());
+    }
+    
+    const queryString = params.toString();
+    const newURL = queryString ? `/products?${queryString}` : '/products';
+    
+    router.push(newURL);
+  };
+
+  const handleSectionChange = (newSection: string) => {
+    updateURL(newSection, searchTerm);
+  };
+
+  const handleSearchChange = (newSearchTerm: string) => {
+    updateURL(selectedSection, newSearchTerm);
+  };
+
+  const handlePurchase = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      setSelectedProduct(product);
+      setShowPurchaseModal(true);
+    }
+  };
+
+  return (
+    <div className="min-h-screen">
+      <Header />
+      <main>
+        <section className="py-8 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <h1 className="text-3xl font-bold text-center mb-8">Our Products</h1>
+            
+            <div className="flex flex-col md:flex-row gap-4 mb-8">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <Select value={selectedSection} onValueChange={handleSectionChange}>
+                <SelectTrigger className="w-full md:w-48">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Filter by section" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sections</SelectItem>
+                  {sections.map((section) => (
+                    <SelectItem key={section.id} value={section.name}>
+                      {section.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.length > 0 && products.map((product) => (
+<div key={product.id} className="group relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col p-4 hover:border-primary/50 hover:scale-[1.01]">
+                  <div className="relative aspect-square mb-4 overflow-hidden rounded-lg bg-gray-100">
+                    <Image
+                      src={product.displayImage}
+                      alt={product.title}
+                      fill
+                      className="object-contain p-2 cursor-pointer"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      onClick={() => setExpandedImage(product.displayImage)}
+                    />
+                    
+                    <Badge className="absolute top-2 left-2 bg-primary">
+                      {product.section.name}
+                    </Badge>
+
+                    {product.discountPrice && (
+                      <Badge className="absolute top-2 right-2 bg-red-500">
+                          {Math.round(((product.originalPrice - product.discountPrice) / product.originalPrice) * 100)}% OFF
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold line-clamp-2">{product.title}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        {product.discountPrice && (
+                          <span className="text-lg font-bold text-primary">
+                            ₹{product.discountPrice}
+                          </span>
+                        )}
+                        <span
+                          className={`${
+                            product.discountPrice
+                              ? "line-through text-gray-500 ml-2"
+                              : "text-lg font-bold"
+                          }`}
+                        >
+                          ₹{product.originalPrice}
+                        </span>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => handlePurchase(product.id)}
+                      >
+                        Buy Now
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {products.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No products found.</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+      <Footer />
+
+      <PurchaseModal
+        product={selectedProduct}
+        isOpen={showPurchaseModal}
+        onClose={() => setShowPurchaseModal(false)}
+      />
+
+      {/* Image Expansion Modal */}
+      <Dialog
+        open={!!expandedImage}
+        onOpenChange={(open) => !open && setExpandedImage(null)}
+      >
+        <DialogContent className="p-0 bg-transparent border-none max-w-[95vw] max-h-[90vh] w-auto h-auto flex items-center justify-center" >
+          {expandedImage && (
+            <div className="relative w-full h-full flex items-center justify-center">
+              <Image
+                src={expandedImage}
+                alt="Expanded product view"
+                width={1200}
+                height={1200}
+                className="object-contain max-w-full max-h-[85vh]"
+                priority
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
