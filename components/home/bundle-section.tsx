@@ -31,10 +31,10 @@ async function getFeaturedBundles(): Promise<Bundle[]> {
       isActive: true,
       isFeatured: true
     })
-      .populate('products', 'title displayImage originalPrice discountPrice')
+      .populate('products', 'title displayImage originalPrice discountPrice ')
       .sort({ createdAt: -1 })
       .limit(4)
-      .lean();
+      // .lean();
 
     const transformedBundles = bundles.map(bundle => ({
       id: bundle._id.toString(),
