@@ -274,7 +274,7 @@ export default function BundleDetail() {
                         </Badge>
                       </div>
                     <Button asChild>
-                      <Link href={`products/${product.id}`}>
+                      <Link href={`/products/${product.id}`}>
                       Check Item
                       </Link>
                     </Button>
