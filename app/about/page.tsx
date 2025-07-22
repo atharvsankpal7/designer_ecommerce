@@ -2,6 +2,21 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Target, Eye, Users } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'About SSCreation - Our Story & Mission | Premium Graphic Design Templates',
+  description: 'Learn about SSCreation\'s journey in creating premium graphic design templates. Discover our mission to provide high-quality, creative design solutions for businesses and individuals worldwide.',
+  keywords: 'About SSCreation, SS Creation story, graphic design company, design team, premium templates, creative professionals, design mission, graphic design services',
+  openGraph: {
+    title: 'About SSCreation - Our Story & Mission',
+    description: 'Learn about SSCreation\'s journey in creating premium graphic design templates and our mission to democratize great design.',
+    url: 'https://sscreation.com/about',
+  },
+  alternates: {
+    canonical: 'https://sscreation.com/about',
+  },
+};
 
 export default function About() {
   return (
