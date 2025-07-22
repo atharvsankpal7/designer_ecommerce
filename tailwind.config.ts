@@ -74,6 +74,10 @@ const config: Config = {
           "0%": { "background-position": "0%" },
           "100%": { "background-position": "200%" },
         },
+        'wave-pulse': {
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '0.7' },
+        },
         'accordion-down': {
           from: {
             height: '0',
@@ -95,7 +99,7 @@ const config: Config = {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         "rainbow": "rainbow var(--speed, 2s) infinite linear",
-
+        'wave-pulse': 'wave-pulse 4s ease-in-out infinite',
       },
     },
   },

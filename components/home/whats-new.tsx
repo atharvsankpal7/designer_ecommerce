@@ -1,14 +1,13 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, TrendingUp, Zap } from "lucide-react";
+import { Clock, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import connectDB from '@/lib/mongodb';
+import { Product } from '@/lib/models';
 
-interface Product {
+interface ProductType {
   id: string;
   title: string;
   displayImage: string;
@@ -17,49 +16,36 @@ interface Product {
   createdAt: string;
 }
 
-export function WhatsNew() {
-  const [products, setProducts] = useState<Product[]>([]);
+async function getNewProducts(): Promise<ProductType[]> {
+  try {
+    await connectDB();
+    
+    const products = await Product.find({
+      isActive: true,
+      // You can add a field like isNew: true or filter by recent createdAt
+      // isNew: true
+    })
+      .sort({ createdAt: -1 })
+      .limit(3);
 
-  useEffect(() => {
-    fetchNewProducts();
-  }, []);
+    const transformedProducts = products.map(product => ({
+      id: product._id.toString(),
+      title: product.title,
+      displayImage: product.displayImage,
+      originalPrice: product.originalPrice,
+      discountPrice: product.discountPrice,
+      createdAt: product.createdAt.toISOString(),
+    }));
 
-  const fetchNewProducts = async () => {
-    try {
-      const response = await fetch("/api/products?new=true&limit=3");
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error("Error fetching new products:", error);
-      // Mock data for demo
-      setProducts([
-        {
-          id: "7",
-          title: "Modern Instagram Story Templates",
-          displayImage: "/placeholder.svg?height=300&width=400",
-          originalPrice: 1999,
-          discountPrice: 1299,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: "8",
-          title: "Corporate Presentation Bundle",
-          displayImage: "/placeholder.svg?height=300&width=400",
-          originalPrice: 3499,
-          discountPrice: 2499,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: "9",
-          title: "Festival Greeting Cards",
-          displayImage: "/placeholder.svg?height=300&width=400",
-          originalPrice: 1499,
-          discountPrice: 999,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-    }
-  };
+    return transformedProducts;
+  } catch (error) {
+    console.error("Error fetching new products:", error);
+    return [];
+  }
+}
+
+export async function WhatsNew() {
+  const products = await getNewProducts();
 
   if (products.length === 0) return null;
 

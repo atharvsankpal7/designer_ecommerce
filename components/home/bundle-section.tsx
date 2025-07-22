@@ -61,7 +61,6 @@ async function getFeaturedBundles(): Promise<Bundle[]> {
 
 export async function BundleSection() {
   const bundles = await getFeaturedBundles();
-  console.log(bundles)
   if (bundles.length === 0) return null;
 
   return (

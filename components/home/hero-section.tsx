@@ -7,6 +7,7 @@ import HeroButton from "../ui/hero-button";
 import { Pacifico } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const pacifico = Pacifico({
   subsets: ["latin"],
@@ -55,7 +56,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-orange-200/[0.3] via-amber-200/[0.2] to-rose-200/[0.3] blur-3xl" />
       
 
-      <div className="relative z-10 container mx-auto px-4">
+      <div className="relative z-10 container mx-auto px-4 py-20 md-py-2">
         <div className="max-w-5xl mx-auto text-center">
           <motion.h1
             className="text-4xl sm:text-6xl lg:text-8xl font-black mb-10 leading-[0.9] tracking-tight"
@@ -106,7 +107,7 @@ export function HeroSection() {
           </div>
 
           <motion.div
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16"
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -123,9 +124,43 @@ export function HeroSection() {
               </Link>
             </Button>
 
-            <Link href="/contact" className="flex items-center">
+<Link href="/contact" className="hidden lg:flex items-center">
               <HeroButton />
             </Link>
+            <Link href="/contact" className="flex items-center lg:hidden">
+              <Button>
+                Get Custom Design
+              </Button>
+            </Link>
+          </motion.div>
+
+          {/* File format logos */}
+          <motion.div 
+            className="flex justify-center items-center gap-6 mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <div className="bg-white/70 backdrop-blur-md p-3 sm:p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex flex-col items-center">
+              <Image 
+                src="/psd.png" 
+                alt="Photoshop PSD Format" 
+                width={60} 
+                height={60} 
+                className="w-10 h-10 sm:w-14 sm:h-14 object-contain" 
+              />
+              <span className="text-xs sm:text-sm font-medium text-gray-700 mt-1">PSD Format</span>
+                </div>
+            <div className="bg-white/70 backdrop-blur-md p-3 sm:p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex flex-col items-center">
+              <Image 
+                src="/cdr.png" 
+                alt="CorelDRAW CDR Format" 
+                width={60} 
+                height={60}
+                className="w-10 h-10 sm:w-14 sm:h-14 object-contain" 
+              />
+              <span className="text-xs sm:text-sm font-medium text-gray-700 mt-1">CDR Format</span>
+                </div>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
@@ -142,10 +177,10 @@ export function HeroSection() {
               <div className="bg-white/50 backdrop-blur-md rounded-2xl p-6 border border-orange-200/50 hover:bg-white/60 transition-all duration-300 hover:scale-105">
                 <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500 mb-2">
                   50k+
-                </div>
+          </div>
                 <div className="text-gray-700 font-medium">Happy Clients</div>
-              </div>
-            </div>
+        </div>
+      </div>
 
             <div className="text-center group">
               <div className="bg-white/50 backdrop-blur-md rounded-2xl p-6 border border-orange-200/50 hover:bg-white/60 transition-all duration-300 hover:scale-105">

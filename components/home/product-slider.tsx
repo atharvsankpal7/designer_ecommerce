@@ -1,15 +1,14 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, Star, Crown, Sparkles } from 'lucide-react';
+import { Star, Crown, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import connectDB from '@/lib/mongodb';
+import { Product } from '@/lib/models';
 
-interface Product {
+interface ProductType {
   id: string;
   title: string;
   displayImage: string;
@@ -17,39 +16,34 @@ interface Product {
   discountPrice?: number;
 }
 
-export function ProductSlider() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [visibleCards, setVisibleCards] = useState(3);
+async function getFeaturedProducts(): Promise<ProductType[]> {
+  try {
+    await connectDB();
+    
+    const products = await Product.find({
+      isActive: true,
+      isFeatured: true
+    })
+      .sort({ createdAt: -1 })
+      .limit(6);
 
-  useEffect(() => {
-    fetchFeaturedProducts();
-   
-  }, []);
+    const transformedProducts = products.map(product => ({
+      id: product._id.toString(),
+      title: product.title,
+      displayImage: product.displayImage,
+      originalPrice: product.originalPrice,
+      discountPrice: product.discountPrice,
+    }));
 
+    return transformedProducts;
+  } catch (error) {
+    console.error('Error fetching featured products:', error);
+    return [];
+  }
+}
 
-  const fetchFeaturedProducts = async () => {
-    try {
-      const response = await fetch('/api/products?featured=true&limit=6');
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error('Error fetching featured products:', error);
-    }
-  };
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) =>
-      (prev + 1) % Math.max(1, products.length - visibleCards + 1)
-    );
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) =>
-      (prev - 1 + Math.max(1, products.length - visibleCards + 1)) %
-      Math.max(1, products.length - visibleCards + 1)
-    );
-  };
+export async function ProductSlider() {
+  const products = await getFeaturedProducts();
 
   if (products.length === 0) return null;
 
@@ -73,7 +67,7 @@ export function ProductSlider() {
         <div className="relative">
           <div className="flex items-center justify-center">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl mx-auto">
-              {products.slice(currentIndex, currentIndex + visibleCards).map((product) => (
+              {products.map((product) => (
                 <div key={product.id}>
                   <Card className="overflow-hidden border-0 bg-white/80 backdrop-blur-sm relative shadow-md">
                     <CardContent className="p-0">
@@ -143,20 +137,6 @@ export function ProductSlider() {
               ))}
             </div>
           </div>
-
-          {/* Optional slider arrows (enable if needed) */}
-          {/* 
-          <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-20">
-            <button onClick={prevSlide}>
-              <ChevronLeft className="h-8 w-8 text-purple-600 hover:text-purple-800" />
-            </button>
-          </div>
-          <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-20">
-            <button onClick={nextSlide}>
-              <ChevronRight className="h-8 w-8 text-purple-600 hover:text-purple-800" />
-            </button>
-          </div>
-          */}
 
           <div className="flex justify-center mt-16">
             <Button
