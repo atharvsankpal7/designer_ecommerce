@@ -175,21 +175,7 @@ function ProductCard({ product, originalId }: { product: ProductType & { origina
         )}
       >
         <CardContent className="p-0 relative">
-          {/* Wishlist button */}
-          <button
-            onClick={() => setIsWishlisted(!isWishlisted)}
-            className={cn(
-              "absolute top-4 right-4 z-30 w-10 h-10 rounded-full backdrop-blur-md",
-              "flex items-center justify-center transition-all duration-300",
-              "transform hover:scale-110",
-              isWishlisted 
-                ? "bg-red-500/90 text-white shadow-lg" 
-                : "bg-white/90 text-slate-400 hover:text-red-500 shadow-md hover:shadow-lg",
-              "opacity-0 group-hover/card:opacity-100 translate-y-2 group-hover/card:translate-y-0",
-            )}
-          >
-            <Heart className={cn("w-4 h-4", isWishlisted && "fill-current")} />
-          </button>
+          
 
           {/* Image container */}
           <div className="relative w-full h-80 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
