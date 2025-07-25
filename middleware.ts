@@ -6,37 +6,28 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith('/admin')) {
-    // Allow access to login page without auth
     if (pathname === '/admin/login') {
       return NextResponse.next();
     }
 
-    // Get JWT token from cookie
- 
-    const token = request.cookies.get('next-auth.token')?.value;
+    const token =
+      request.cookies.get('next-auth.session-token')?.value ||
+      request.cookies.get('__Secure-next-auth.session-token')?.value;
 
     if (!token) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
     try {
-
       const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
-
-      const bruh = await jwtVerify(token, secret);
-
-
-      // Check admin flag
-      const payload = bruh.payload
+      const { payload } = await jwtVerify(token, secret);
 
       const isAdmin = payload.isAdmin;
-
 
       if (!isAdmin) {
         return NextResponse.redirect(new URL('/admin/login', request.url));
       }
     } catch (err) {
-      // Invalid token
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
