@@ -16,7 +16,7 @@ interface ProductType {
   title: string
   displayImage: string
   originalPrice: number
-  discountPrice?: number
+  discountPrice?: number 
 }
 
 export function ModernAutoScrollCarousel({ products }: { products: ProductType[] }) {
@@ -160,25 +160,25 @@ function ProductCard({ product, originalId }: { product: ProductType & { origina
 
   return (
     <div 
-      className="flex-shrink-0 w-80 group/card"
+      className="flex-shrink-0 w-64 group/card h-full"
       onMouseEnter={() => setIsCardHovered(true)}
       onMouseLeave={() => setIsCardHovered(false)}
     >
       <Card
         className={cn(
-          "overflow-hidden border-0 bg-white/80 backdrop-blur-lg relative",
+          "overflow-hidden border-0 bg-white/80 backdrop-blur-lg relative h-full flex flex-col",
           "shadow-lg hover:shadow-2xl transition-all duration-500 ease-out",
           "transform hover:scale-[1.03] hover:-translate-y-3",
           "ring-1 ring-slate-200/60 hover:ring-indigo-300/60",
           "before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/20 before:to-transparent before:pointer-events-none",
-          "hover:before:from-indigo-50/30 hover:before:to-purple-50/20",
+          "",
         )}
       >
-        <CardContent className="p-0 relative">
+        <CardContent className="p-0 relative flex flex-col h-full">
           
 
           {/* Image container */}
-          <div className="relative w-full h-80 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+          <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden flex-shrink-0">
             {/* Loading shimmer */}
             <div
               className={cn(
@@ -211,14 +211,14 @@ function ProductCard({ product, originalId }: { product: ProductType & { origina
             />
           </div>
           {/* Enhanced content */}
-          <div className="p-6 space-y-4 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm">
+          <div className="p-4 space-y-3 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm flex-1 flex flex-col">
             {/* Badges moved to card body */}
-            <div className="flex gap-2 mb-3">
+            <div className="flex gap-2 mb-3 flex-shrink-0">
               <Badge
                 className={cn(
                   "bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 text-amber-900 border-0",
-                  "shadow-lg font-bold text-xs px-3 py-1.5 rounded-full",
-                  "transform group-hover/card:scale-110 transition-all duration-300",
+                  "shadow-lg  text-xs px-3 py-1.5 rounded-full",
+                  "transform  transition-all duration-300",
                   "ring-2 ring-white/50 backdrop-blur-sm",
                 )}
               >
@@ -230,55 +230,62 @@ function ProductCard({ product, originalId }: { product: ProductType & { origina
                 <Badge
                   className={cn(
                     "bg-gradient-to-r from-red-500 via-pink-500 to-rose-500 text-white border-0",
-                    "shadow-lg font-bold text-xs px-3 py-1.5 rounded-full",
-                    "transform group-hover/card:scale-110 transition-all duration-300",
+                    "shadow-lg   px-3 py-1.5 rounded-full",
+                    "transform  transition-all duration-300",
                     "ring-2 ring-white/50 backdrop-blur-sm",
                   )}
                 >
                   -{discountPercentage}% OFF
                 </Badge>
               )}
-    </div>
+            </div>
 
-            <h3 className="font-bold text-xl leading-tight text-slate-900 line-clamp-2 group-hover/card:text-indigo-900 transition-colors duration-300">
+            <h3 className="font text-base leading-tight text-slate-900 group-hover/card:text-indigo-900 transition-colors duration-300 flex-shrink-0 min-h-[2.5rem]">
               {product.title}
             </h3>
 
             {/* Enhanced pricing section */}
-            <div className="space-y-3">
+            <div className="space-y-2 flex-1 flex flex-col justify-end">
               <div className="flex items-center justify-between">
-                <div className="flex items-baseline gap-3">
+                <div className="flex items-baseline gap-2">
                   {product.discountPrice ? (
                     <>
-                      <span className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                      <span className="text-xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                         ₹{product.discountPrice.toLocaleString()}
                       </span>
-                      <span className="text-lg text-slate-400 line-through font-medium">
+                      <span className="text-sm text-slate-400 line-through font-medium">
                         ₹{product.originalPrice.toLocaleString()}
                       </span>
                     </>
                   ) : (
-                    <span className="text-3xl font-black text-slate-900">
+                    <span className="text-xl font-black text-slate-900">
                       ₹{product.originalPrice.toLocaleString()}
                     </span>
                   )}
                 </div>
 
-                {product.discountPrice && (
-                  <div className="text-right bg-green-50 px-3 py-1 rounded-full border border-green-200">
-                    <div className="text-xs text-green-600 font-medium">You save</div>
-                    <div className="text-sm font-bold text-green-700">
+                {product.discountPrice ? (
+                  <div className="text-right bg-green-50 px-2 py-1 rounded-full border border-green-200 ">
+                    <div className="text-xs text-green-600 font-medium text-center">Save</div>
+                    <div className="text-xs  text-green-700 text-center">
                       ₹{(product.originalPrice - product.discountPrice).toLocaleString()}
                     </div>
                   </div>
-                )}
+                ):
+                <div className="text-right bg-indigo-500 px-2 py-1 rounded-full border border-green-200 ">
+                    <div className="text-xs text-white font-medium text-center">Get</div>
+                    <div className="text-xs  text-white">
+                      Now
+                    </div>
+                  </div>
+                }
               </div>
 
               {/* Enhanced CTA Button */}
               <Button
                 asChild
                 className={cn(
-                  "w-full h-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600",
+                  "w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600",
                   "hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700",
                   "text-white font-semibold rounded-xl shadow-lg hover:shadow-xl",
                   "transform hover:scale-[1.02] transition-all duration-300 ease-out",
