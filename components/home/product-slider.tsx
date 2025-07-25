@@ -1,144 +1,91 @@
-import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Star, Crown, Sparkles } from 'lucide-react';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import connectDB from '@/lib/mongodb';
-import { Product } from '@/lib/models';
+import { Button } from "@/components/ui/button"
+import { Crown, Sparkles } from "lucide-react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import connectDB from "@/lib/mongodb"
+import { Product } from "@/lib/models"
+import { ModernAutoScrollCarousel } from "@/components/product-slider/AutoScrollCarousel"
 
 interface ProductType {
-  id: string;
-  title: string;
-  displayImage: string;
-  originalPrice: number;
-  discountPrice?: number;
+  id: string
+  title: string
+  displayImage: string
+  originalPrice: number
+  discountPrice?: number
 }
 
 async function getFeaturedProducts(): Promise<ProductType[]> {
   try {
-    await connectDB();
-    
+    await connectDB()
+
     const products = await Product.find({
       isActive: true,
-      isFeatured: true
+      isFeatured: true,
     })
       .sort({ createdAt: -1 })
-      .limit(6);
+      .limit(8)
 
-    const transformedProducts = products.map(product => ({
+    const transformedProducts = products.map((product) => ({
       id: product._id.toString(),
       title: product.title,
       displayImage: product.displayImage,
       originalPrice: product.originalPrice,
       discountPrice: product.discountPrice,
-    }));
+    }))
 
-    return transformedProducts;
+    return transformedProducts
   } catch (error) {
-    console.error('Error fetching featured products:', error);
-    return [];
+    console.error("Error fetching featured products:", error)
+    return []
   }
 }
 
 export async function ProductSlider() {
-  const products = await getFeaturedProducts();
+  const products = await getFeaturedProducts()
 
-  if (products.length === 0) return null;
+  if (products.length === 0) return null
 
   return (
-    <section className="py-24 bg-gradient-to-br from-slate-50 via-white to-purple-50 relative overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-16 relative z-10">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full mb-6">
-            <Crown className="w-5 h-5 text-purple-600 mr-2" />
-            <span className="text-purple-800 font-semibold">Featured Collection</span>
+    <section className="py-20 lg:py-32 relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+      {/* Modern background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-indigo-100/40 to-purple-100/40 blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-gradient-to-tr from-blue-100/30 to-cyan-100/30 blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-r from-violet-100/20 to-fuchsia-100/20 blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Modern header section */}
+        <div className="text-center mb-16 lg:mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-indigo-100 rounded-full mb-6 shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 animate-pulse"></div>
+            <Crown className="w-4 h-4 text-indigo-600" />
+            <span className="text-sm font-semibold text-indigo-900 tracking-wide">FEATURED COLLECTION</span>
           </div>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 bg-gradient-to-r from-gray-900 via-purple-800 to-pink-800 bg-clip-text text-transparent">
-            Premium Designs
+
+          <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black mb-6 tracking-tight">
+            <span className="bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 bg-clip-text text-transparent">
+              Premium
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Designs
+            </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Handpicked masterpieces that define excellence. Each design tells a story,
-            crafted with precision and passion for the discerning creator.
+
+          <p className="text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
+            Handpicked masterpieces that define excellence. Each design tells a story, crafted with precision for the
+            discerning creator.
           </p>
         </div>
 
+        {/* Carousel section */}
         <div className="relative">
-          <div className="flex items-center justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl mx-auto">
-              {products.map((product) => (
-                <div key={product.id}>
-                  <Card className="overflow-hidden border-0 bg-white/80 backdrop-blur-sm relative shadow-md">
-                    <CardContent className="p-0">
-                      <div className="relative w-full h-64 bg-white flex items-center justify-center">
-                        <Image
-                          src={product.displayImage || "/placeholder.svg"}
-                          alt={product.title}
-                          width={300}
-                          height={300}
-                          className="object-contain max-h-full max-w-full"
-                        />
-                        <Badge className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-black border-0 shadow-lg font-bold">
-                          <Star className="h-3 w-3 mr-1 fill-current" />
-                          Featured
-                        </Badge>
-                      </div>
+          <ModernAutoScrollCarousel products={products} />
+        </div>
 
-                      <div className="p-6">
-                        <h3 className="font-bold text-xl mb-4 line-clamp-2 text-gray-900 leading-tight">
-                          {product.title}
-                        </h3>
-
-                        <div className="flex items-center justify-between mb-6">
-                          <div className="flex items-center space-x-3">
-                            {product.discountPrice && (
-                              <span className="text-2xl font-black text-purple-600">
-                                ₹{product.discountPrice.toLocaleString()}
-                              </span>
-                            )}
-                            <span
-                              className={cn(
-                                product.discountPrice
-                                  ? "line-through text-gray-400 text-lg"
-                                  : "text-2xl font-black text-gray-900"
-                              )}
-                            >
-                              ₹{product.originalPrice.toLocaleString()}
-                            </span>
-                          </div>
-
-                          {product.discountPrice && (
-                            <Badge variant="secondary" className="bg-red-100 text-red-700 border-0 font-semibold">
-                              Save ₹{(product.originalPrice - product.discountPrice).toLocaleString()}
-                            </Badge>
-                          )}
-                        </div>
-
-                        <Button
-                          asChild
-                          className={cn(
-                            "w-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-600 text-white rounded-xl font-bold py-6 text-lg",
-                            "shadow-lg hover:shadow-purple-300/30 dark:hover:shadow-purple-900/30",
-                            "transform hover:scale-105 transition-all duration-300 ease-out",
-                            "border border-purple-400/20 backdrop-blur-sm",
-                            "relative overflow-hidden group",
-                            "before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:via-transparent before:to-transparent before:opacity-0 before:hover:opacity-100 before:transition-opacity before:duration-500"
-                          )}
-                        >
-                          <Link href={`/products/${product.id}`}>
-                            View Premium Design
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-center mt-16">
+        {/* Modern CTA button */}
+        <div className="flex justify-center mt-16">
             <Button
               asChild
               size="lg"
@@ -155,8 +102,7 @@ export async function ProductSlider() {
               </Link>
             </Button>
           </div>
-        </div>
       </div>
     </section>
-  );
+  )
 }
