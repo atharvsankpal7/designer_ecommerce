@@ -374,19 +374,23 @@ export default function AdminProducts() {
                 </div>
 
                 <div>
-                  <Label>Product Files</Label>
-                  <div className="mt-2">
-                    <input
-                      type="file"
-                      multiple
-                      onChange={(e) => {
-                        const files = Array.from(e.target.files || []);
-                        files.forEach((file) =>
-                          handleFileUpload(file)
-                        );
-                      }}
-                      className="mb-2"
-                    />
+                  <Label>Product Files (URLs)</Label>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Enter file URL (e.g., https://example.com/file.pdf)"
+                        value={newFileUrl}
+                        onChange={(e) => setNewFileUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleAddFileUrl}
+                        variant="outline"
+                      >
+                        Add URL
+                      </Button>
+                    </div>
                     <div className="space-y-2">
                       {formData.productFiles
                         .filter(Boolean) // Filter out null/undefined values
@@ -396,7 +400,7 @@ export default function AdminProducts() {
                             className="flex items-center justify-between p-2 bg-gray-100 rounded"
                           >
                             <span className="text-sm truncate">
-                              {file ? file.split("/").pop() : "Unnamed file"}
+                              {file}
                             </span>
                             <Button
                               type="button"
