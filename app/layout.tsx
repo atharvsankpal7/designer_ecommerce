@@ -78,15 +78,51 @@ export default function RootLayout({
               "url": "https://sscreation.com",
               "logo": "https://sscreation.com/logo.png",
               "description": "SSCreation offers premium graphic design templates, festival designs, business cards, social media templates, and celebration graphics.",
+              "foundingDate": "2020",
               "sameAs": [
                 "https://facebook.com/sscreation",
                 "https://instagram.com/sscreation",
-                "https://twitter.com/sscreation"
+                "https://twitter.com/sscreation",
+                "https://youtube.com/@sscreation",
+                "https://linkedin.com/company/sscreation"
               ],
               "contactPoint": {
                 "@type": "ContactPoint",
                 "contactType": "customer service",
-                "url": "https://sscreation.com/contact"
+                "telephone": "+91-9876543210",
+                "email": "info@sscreation.com",
+                "url": "https://sscreation.com/contact",
+                "availableLanguage": ["English", "Hindi", "Marathi"]
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "123 Design Street",
+                "addressLocality": "Mumbai",
+                "addressRegion": "Maharashtra",
+                "postalCode": "400001",
+                "addressCountry": "IN"
+              }
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "SSCreation",
+              "alternateName": "SS Creation",
+              "url": "https://sscreation.com",
+              "description": "Premium graphic design templates for festivals, celebrations, and business needs",
+              "publisher": {
+                "@type": "Organization",
+                "name": "SSCreation"
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://sscreation.com/products?search={search_term_string}",
+                "query-input": "required name=search_term_string"
               }
             })
           }}

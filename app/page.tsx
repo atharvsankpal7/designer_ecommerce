@@ -1,3 +1,4 @@
+import { HeroSlider } from '@/components/home/hero-slider';
 import { HeroSection } from '@/components/home/hero-section';
 import { ProductSlider } from '@/components/home/product-slider';
 import { BundleSection } from '@/components/home/bundle-section';
@@ -25,6 +26,7 @@ export default function Home() {
     <div className="min-h-screen">
       <Header />
       <main>
+        <HeroSlider />
         <HeroSection />
         <ProductSlider />
         <BundleSection />
