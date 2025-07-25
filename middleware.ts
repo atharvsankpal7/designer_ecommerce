@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
@@ -12,25 +13,19 @@ export async function middleware(request: NextRequest) {
     }
 
     // Get JWT token from cookie
- 
-    const token = request.cookies.get('next-auth.token')?.value;
+    const token = request.cookies.get('next-auth.session-token')?.value ||
+                  request.cookies.get('__Secure-next-auth.session-token')?.value;
 
     if (!token) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
     try {
-
       const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
-
-      const bruh = await jwtVerify(token, secret);
-
+      const { payload } = await jwtVerify(token, secret);
 
       // Check admin flag
-      const payload = bruh.payload
-
       const isAdmin = payload.isAdmin;
-
 
       if (!isAdmin) {
         return NextResponse.redirect(new URL('/admin/login', request.url));
