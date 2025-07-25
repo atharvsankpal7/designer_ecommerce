@@ -1,16 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Only protect admin routes except login page
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    const session = await auth();
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET 
+    });
 
-    // If no session or user is not admin, redirect to login
-    if (!session?.user?.isAdmin) {
+    // If no token or user is not admin, redirect to login
+    if (!token?.isAdmin) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
