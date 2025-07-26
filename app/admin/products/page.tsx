@@ -26,7 +26,7 @@ import { Plus, Edit, Trash2, Upload, Expand, ArrowLeftIcon } from "lucide-react"
 import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
-import { IconLeft } from "react-day-picker";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Product {
   id: string;
@@ -68,10 +68,15 @@ export default function AdminProducts() {
   const [uploading, setUploading] = useState(false);
   const [newFileUrl, setNewFileUrl] = useState("");
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // New loading state
 
   useEffect(() => {
-    fetchProducts();
-    fetchSections();
+    const fetchData = async () => {
+      setLoading(true); // Set loading to true before fetching
+      await Promise.all([fetchProducts(), fetchSections()]);
+      setLoading(false); // Set loading to false after fetching
+    };
+    fetchData();
   }, []);
 
   const fetchProducts = async () => {
@@ -81,6 +86,7 @@ export default function AdminProducts() {
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
+      toast.error("Failed to load products.");
     }
   };
 
@@ -91,6 +97,7 @@ export default function AdminProducts() {
       setSections(data);
     } catch (error) {
       console.error("Error fetching sections:", error);
+      toast.error("Failed to load sections.");
     }
   };
 
@@ -171,11 +178,11 @@ export default function AdminProducts() {
         toast.success(editingProduct ? "Product updated" : "Product created");
         setIsModalOpen(false);
         resetForm();
-        fetchProducts();
+        fetchProducts(); // Re-fetch products to update the list
       } else {
         const errorData = await response.json();
         console.error("API Error:", errorData);
-        toast.error("Failed to save product");
+        toast.error("Failed to save product: " + (errorData.message || "Unknown error"));
       }
     } catch (error) {
       console.error("Submit error:", error);
@@ -190,7 +197,7 @@ export default function AdminProducts() {
       description: product.description,
       originalPrice: product.originalPrice.toString(),
       discountPrice: product.discountPrice?.toString() || "",
-      sectionId: product.section.id || "",
+      sectionId: product.section?.id || "", // Ensure section.id is accessed safely
       displayImage: product.displayImage,
       productFiles: product.productFiles || [],
       isFeatured: product.isFeatured,
@@ -209,7 +216,7 @@ export default function AdminProducts() {
 
       if (response.ok) {
         toast.success("Product deleted");
-        fetchProducts();
+        fetchProducts(); // Re-fetch products to update the list
       } else {
         toast.error("Failed to delete product");
       }
@@ -246,13 +253,13 @@ export default function AdminProducts() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div className="flex gap-3">
-    <Button variant="outline" asChild className="flex " >
-      <Link href="/admin">
-      <ArrowLeftIcon/>
-      Panel
-      </Link>
-      </Button>
-          <h1 className="text-3xl font-bold">Product Management</h1>
+            <Button variant="outline" asChild className="flex">
+              <Link href="/admin">
+                <ArrowLeftIcon />
+                Panel
+              </Link>
+            </Button>
+            <h1 className="text-3xl font-bold">Product Management</h1>
           </div>
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>
@@ -453,115 +460,140 @@ export default function AdminProducts() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <Card key={product.id} className="flex flex-col h-full">
-              <CardContent className="p-4 flex flex-col flex-grow">
-                <div className="relative aspect-square mb-4 group overflow-hidden rounded-lg bg-gray-100">
-                  <Image
-                    src={product.displayImage}
-                    alt={product.title}
-                    fill
-                    className="object-contain p-2"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                  <div className="absolute top-2 left-2 space-x-1">
-                    {product.isFeatured && (
-                      <Badge className="bg-yellow-500">Featured</Badge>
-                    )}
-                    {!product.isActive && (
-                      <Badge variant="destructive">Inactive</Badge>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setExpandedImage(product.displayImage)}
-                    className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  >
-                    <Expand className="h-4 w-4 text-white" />
-                  </button>
-                </div>
-
-                <div className="flex-grow">
-                  <h3 className="font-semibold mb-2 line-clamp-2">
-                    {product.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                    {product.description}
-                  </p>
-                  <p className="text-sm text-gray-500 mb-2">
-                    Section: {product.section.name}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    {product.discountPrice && (
-                      <span className="text-lg font-bold text-primary">
-                        ₹{product.discountPrice}
-                      </span>
-                    )}
-                    <span
-                      className={`${
-                        product.discountPrice
-                          ? "line-through text-gray-500 ml-2"
-                          : "text-lg font-bold"
-                      }`}
-                    >
-                      ₹{product.originalPrice}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2 mt-auto">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(product)}
-                    className="flex-1"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(product.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {loading ? ( // Conditionally render skeletons
+            Array.from({ length: 6 }).map((_, index) => (
+              <Card className="flex flex-col h-full">
+      <CardContent className="p-4 flex flex-col flex-grow">
+        <div className="relative aspect-square mb-4 group overflow-hidden rounded-lg bg-gray-100">
+          <Skeleton className="w-full h-full" />
         </div>
 
-        {products.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">
-              No products found. Please Check Later
-            </p>
-          </div>
-        )}
-      </div>
+        <div className="flex-grow">
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-2/3 mb-2" />
+        </div>
 
-      {/* Image Expansion Modal */}
-      <Dialog
-        open={!!expandedImage}
-        onOpenChange={(open) => !open && setExpandedImage(null)}
-      >
-        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-transparent border-none container">
-          {expandedImage && (
-            <div className="relative w-full h-full">
-              <Image
-                src={expandedImage}
-                alt="Expanded product view"
-                width={100}
-                height={100}
-                className="object-contain w-full h-full"
-              />
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-5 w-1/4" />
+        </div>
+
+        <div className="flex space-x-2 mt-auto">
+          <Skeleton className="h-9 w-1/2" />
+          <Skeleton className="h-9 w-1/2" />
+        </div>
+      </CardContent>
+    </Card>
+            ))
+          ) : products.length > 0 ? (
+            products.map((product) => (
+              <Card key={product.id} className="flex flex-col h-full">
+                <CardContent className="p-4 flex flex-col flex-grow">
+                  <div className="relative aspect-square mb-4 group overflow-hidden rounded-lg bg-gray-100">
+                    <Image
+                      src={product.displayImage}
+                      alt={product.title}
+                      fill
+                      className="object-contain p-2"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                    <div className="absolute top-2 left-2 space-x-1">
+                      {product.isFeatured && (
+                        <Badge className="bg-yellow-500">Featured</Badge>
+                      )}
+                      {!product.isActive && (
+                        <Badge variant="destructive">Inactive</Badge>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setExpandedImage(product.displayImage)}
+                      className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    >
+                      <Expand className="h-4 w-4 text-white" />
+                    </button>
+                  </div>
+
+                  <div className="flex-grow">
+                    <h3 className="font-semibold mb-2 line-clamp-2">
+                      {product.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                      {product.description}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Section: {product.section?.name || "N/A"}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      {product.discountPrice && (
+                        <span className="text-lg font-bold text-primary">
+                          ₹{product.discountPrice}
+                        </span>
+                      )}
+                      <span
+                        className={`${
+                          product.discountPrice
+                            ? "line-through text-gray-500 ml-2"
+                            : "text-lg font-bold"
+                        }`}
+                      >
+                        ₹{product.originalPrice}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-2 mt-auto">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(product)}
+                      className="flex-1"
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(product.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center py-12 col-span-full">
+              <p className="text-gray-500">
+                No products found. Please add a new product.
+              </p>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+
+        {/* Image Expansion Modal */}
+        <Dialog
+          open={!!expandedImage}
+          onOpenChange={(open) => !open && setExpandedImage(null)}
+        >
+          <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-transparent border-none container">
+            {expandedImage && (
+              <div className="relative w-full h-full">
+                <Image
+                  src={expandedImage}
+                  alt="Expanded product view"
+                  width={100}
+                  height={100}
+                  className="object-contain w-full h-full"
+                />
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

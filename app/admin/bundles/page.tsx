@@ -26,6 +26,7 @@ import { Plus, Edit, Trash2, Upload, Expand, Package } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton"; // Import the Skeleton component
 
 interface Bundle {
   id: string;
@@ -50,6 +51,8 @@ interface Product {
 export default function AdminBundles() {
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoadingBundles, setIsLoadingBundles] = useState(true); // New loading state for bundles
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true); // New loading state for products
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBundle, setEditingBundle] = useState<Bundle | null>(null);
   const [formData, setFormData] = useState({
@@ -71,22 +74,30 @@ export default function AdminBundles() {
   }, []);
 
   const fetchBundles = async () => {
+    setIsLoadingBundles(true); // Set loading to true before fetching
     try {
       const response = await fetch("/api/bundles");
       const data = await response.json();
       setBundles(data);
     } catch (error) {
       console.error("Error fetching bundles:", error);
+      toast.error("Failed to load bundles.");
+    } finally {
+      setIsLoadingBundles(false); // Set loading to false after fetching
     }
   };
 
   const fetchProducts = async () => {
+    setIsLoadingProducts(true); // Set loading to true before fetching
     try {
       const response = await fetch("/api/products");
       const data = await response.json();
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
+      toast.error("Failed to load products for selection.");
+    } finally {
+      setIsLoadingProducts(false); // Set loading to false after fetching
     }
   };
 
@@ -94,7 +105,7 @@ export default function AdminBundles() {
     setUploading(true);
     const formDataUpload = new FormData();
     formDataUpload.append("file", file);
-    formDataUpload.append("upload_preset", "kwf4nlm7");
+    formDataUpload.append("upload_preset", "kwf4nlm7"); // Replace with your actual upload preset
 
     try {
       const response = await fetch(
@@ -109,6 +120,7 @@ export default function AdminBundles() {
       setFormData((prev) => ({ ...prev, displayImage: data.secure_url }));
       toast.success("Display image uploaded successfully");
     } catch (error) {
+      console.error("Cloudinary upload error:", error);
       toast.error("Failed to upload display image");
     } finally {
       setUploading(false);
@@ -132,7 +144,7 @@ export default function AdminBundles() {
           ? parseFloat(formData.discountPrice)
           : undefined,
         displayImage: formData.displayImage,
-        products: formData.products,
+        products: formData.products, // These are product IDs
         isActive: formData.isActive,
         isFeatured: formData.isFeatured,
       };
@@ -152,11 +164,11 @@ export default function AdminBundles() {
         toast.success(editingBundle ? "Bundle updated" : "Bundle created");
         setIsModalOpen(false);
         resetForm();
-        fetchBundles();
+        fetchBundles(); // Re-fetch bundles to update the list
       } else {
         const errorData = await response.json();
         console.error("API Error:", errorData);
-        toast.error("Failed to save bundle");
+        toast.error(`Failed to save bundle: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Submit error:", error);
@@ -189,11 +201,13 @@ export default function AdminBundles() {
 
       if (response.ok) {
         toast.success("Bundle deleted");
-        fetchBundles();
+        fetchBundles(); // Re-fetch bundles to update the list
       } else {
-        toast.error("Failed to delete bundle");
+        const errorData = await response.json();
+        toast.error(`Failed to delete bundle: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
+      console.error("Delete error:", error);
       toast.error("Something went wrong");
     }
   };
@@ -215,11 +229,52 @@ export default function AdminBundles() {
   const handleProductSelection = (productId: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      products: checked 
+      products: checked
         ? [...prev.products, productId]
         : prev.products.filter(id => id !== productId)
     }));
   };
+
+  const SkeletonCard = () => (
+    <Card className="flex flex-col h-full animate-pulse">
+      <CardContent className="p-4 flex flex-col flex-grow">
+        <div className="relative aspect-square mb-4 bg-gray-200 rounded-lg" />
+        <div className="flex-grow">
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-1/2 mb-2" />
+          <div className="flex items-center mb-4">
+            <Skeleton className="h-4 w-4 mr-1" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </div>
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-6 w-24" />
+        </div>
+        <div className="flex space-x-2 mt-auto">
+          <Skeleton className="h-9 w-1/2" />
+          <Skeleton className="h-9 w-1/2" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const ProductSelectionSkeleton = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 max-h-60 overflow-y-auto border rounded-lg p-4">
+      {[...Array(6)].map((_, i) => ( // Show 6 skeleton items
+        <div key={i} className="flex items-center space-x-2 p-2 border rounded">
+          <Skeleton className="h-4 w-4 rounded" /> {/* Checkbox skeleton */}
+          <div className="flex-1 min-w-0 flex items-center space-x-2">
+            <Skeleton className="h-10 w-10 rounded" /> {/* Image skeleton */}
+            <div className="flex-1 min-w-0">
+              <Skeleton className="h-4 w-3/4" /> {/* Title skeleton */}
+              <Skeleton className="h-3 w-1/2 mt-1" /> {/* Price skeleton */}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -317,36 +372,44 @@ export default function AdminBundles() {
 
                 <div>
                   <Label>Select Products for Bundle</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 max-h-60 overflow-y-auto border rounded-lg p-4">
-                    {products.map((product) => (
-                      <div key={product.id} className="flex items-center space-x-2 p-2 border rounded">
-                        <Checkbox
-                          id={product.id}
-                          checked={formData.products.includes(product.id)}
-                          onCheckedChange={(checked) => 
-                            handleProductSelection(product.id, checked as boolean)
-                          }
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <Image
-                              src={product.displayImage}
-                              alt={product.title}
-                              width={40}
-                              height={40}
-                              className="object-cover rounded"
+                  {isLoadingProducts ? (
+                    <ProductSelectionSkeleton />
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 max-h-60 overflow-y-auto border rounded-lg p-4">
+                      {products.length === 0 ? (
+                        <p className="col-span-full text-center text-gray-500">No products available. Add some products first!</p>
+                      ) : (
+                        products.map((product) => (
+                          <div key={product.id} className="flex items-center space-x-2 p-2 border rounded">
+                            <Checkbox
+                              id={product.id}
+                              checked={formData.products.includes(product.id)}
+                              onCheckedChange={(checked) =>
+                                handleProductSelection(product.id, checked as boolean)
+                              }
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{product.title}</p>
-                              <p className="text-xs text-gray-500">
-                                ₹{product.discountPrice || product.originalPrice}
-                              </p>
+                              <div className="flex items-center space-x-2">
+                                <Image
+                                  src={product.displayImage}
+                                  alt={product.title}
+                                  width={40}
+                                  height={40}
+                                  className="object-cover rounded"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium truncate">{product.title}</p>
+                                  <p className="text-xs text-gray-500">
+                                    ₹{product.discountPrice || product.originalPrice}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                        ))
+                      )}
+                    </div>
+                  )}
                   {formData.products.length > 0 && (
                     <p className="text-sm text-gray-600 mt-2">
                       {formData.products.length} product(s) selected
@@ -374,7 +437,7 @@ export default function AdminBundles() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={uploading}>
+                <Button type="submit" className="w-full" disabled={uploading || isLoadingProducts}>
                   {uploading ? "Uploading..." : editingBundle ? "Update Bundle" : "Create Bundle"}
                 </Button>
               </form>
@@ -383,97 +446,100 @@ export default function AdminBundles() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bundles.map((bundle) => (
-            <Card key={bundle.id} className="flex flex-col h-full">
-              <CardContent className="p-4 flex flex-col flex-grow">
-                <div className="relative aspect-square mb-4 group overflow-hidden rounded-lg bg-gray-100">
-                  <Image
-                    src={bundle.displayImage}
-                    alt={bundle.name}
-                    fill
-                    className="object-contain p-2"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                  <div className="absolute top-2 left-2 space-x-1">
-                    {bundle.isFeatured && (
-                      <Badge className="bg-yellow-500">Featured</Badge>
-                    )}
-                    {!bundle.isActive && (
-                      <Badge variant="destructive">Inactive</Badge>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setExpandedImage(bundle.displayImage)}
-                    className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  >
-                    <Expand className="h-4 w-4 text-white" />
-                  </button>
-                </div>
-
-                <div className="flex-grow">
-                  <h3 className="font-semibold mb-2 line-clamp-2">
-                    {bundle.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                    {bundle.description}
-                  </p>
-                  <div className="flex items-center mb-2">
-                    <Package className="h-4 w-4 mr-1 text-gray-500" />
-                    <span className="text-sm text-gray-500">
-                      {bundle.products.length} product(s)
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    {bundle.discountPrice && (
-                      <span className="text-lg font-bold text-primary">
-                        ₹{bundle.discountPrice}
-                      </span>
-                    )}
-                    <span
-                      className={`${
-                        bundle.discountPrice
-                          ? "line-through text-gray-500 ml-2"
-                          : "text-lg font-bold"
-                      }`}
+          {isLoadingBundles ? (
+            // Render 6 skeleton cards while bundles are loading
+            [...Array(6)].map((_, i) => <SkeletonCard key={i} />)
+          ) : bundles.length === 0 ? (
+            <div className="text-center py-12 col-span-full">
+              <p className="text-gray-500">
+                No bundles found. Create your first bundle!
+              </p>
+            </div>
+          ) : (
+            bundles.map((bundle) => (
+              <Card key={bundle.id} className="flex flex-col h-full">
+                <CardContent className="p-4 flex flex-col flex-grow">
+                  <div className="relative aspect-square mb-4 group overflow-hidden rounded-lg bg-gray-100">
+                    <Image
+                      src={bundle.displayImage}
+                      alt={bundle.name}
+                      fill
+                      className="object-contain p-2"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                    <div className="absolute top-2 left-2 space-x-1">
+                      {bundle.isFeatured && (
+                        <Badge className="bg-yellow-500">Featured</Badge>
+                      )}
+                      {!bundle.isActive && (
+                        <Badge variant="destructive">Inactive</Badge>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setExpandedImage(bundle.displayImage)}
+                      className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     >
-                      ₹{bundle.originalPrice}
-                    </span>
+                      <Expand className="h-4 w-4 text-white" />
+                    </button>
                   </div>
-                </div>
 
-                <div className="flex space-x-2 mt-auto">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(bundle)}
-                    className="flex-1"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(bundle.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="flex-grow">
+                    <h3 className="font-semibold mb-2 line-clamp-2">
+                      {bundle.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                      {bundle.description}
+                    </p>
+                    <div className="flex items-center mb-2">
+                      <Package className="h-4 w-4 mr-1 text-gray-500" />
+                      <span className="text-sm text-gray-500">
+                        {bundle.products.length} product(s)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      {bundle.discountPrice && (
+                        <span className="text-lg font-bold text-primary">
+                          ₹{bundle.discountPrice}
+                        </span>
+                      )}
+                      <span
+                        className={`${
+                          bundle.discountPrice
+                            ? "line-through text-gray-500 ml-2"
+                            : "text-lg font-bold"
+                        }`}
+                      >
+                        ₹{bundle.originalPrice}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-2 mt-auto">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(bundle)}
+                      className="flex-1"
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(bundle.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
-
-        {bundles.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">
-              No bundles found. Create your first bundle!
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Image Expansion Modal */}
@@ -487,8 +553,8 @@ export default function AdminBundles() {
               <Image
                 src={expandedImage}
                 alt="Expanded bundle view"
-                width={800}
-                height={600}
+                width={800} // Adjust based on your common image sizes
+                height={600} // Adjust based on your common image sizes
                 className="object-contain w-full h-full"
               />
             </div>
