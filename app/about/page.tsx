@@ -22,7 +22,6 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <div className="min-h-screen">
-      <SSRHeader />
       <main>
       <HeroSection />
 
@@ -99,7 +98,6 @@ export default function About() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

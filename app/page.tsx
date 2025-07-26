@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <SSRHeader />
+
       <main>
         <HeroSlider />
         <ProductSlider />
@@ -33,7 +33,6 @@ export default function Home() {
         <BundleSection />
         <WhatsNew />
       </main>
-      <Footer />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { Footer } from '@/components/layout/footer';
+import { SSRHeader } from '@/components/layout/ssr-header';
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -19,5 +21,9 @@ export default function BundlesLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      {children}
+    </>
+  );
 }

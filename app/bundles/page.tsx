@@ -83,7 +83,7 @@ export default function Bundles() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50/20 via-white to-purple-50/20">
-      <SSRHeader />
+      {/* <SSRHeader /> */}
 
       <main className="overflow-hidden">
         {/* Hero Section */}
@@ -393,7 +393,7 @@ export default function Bundles() {
         onClose={() => setShowPurchaseModal(false)}
       />
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }

@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Providers } from '@/components/providers';
+import { SSRHeader } from '@/components/layout/ssr-header';
+import { Footer } from '@/components/layout/footer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -130,7 +132,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
+          <SSRHeader />
           {children}
+          <Footer />
         </Providers>
         <Toaster position="top-right" />
       </body>
