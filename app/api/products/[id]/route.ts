@@ -57,7 +57,7 @@ export async function GET(
     };
 
     return NextResponse.json(transformedProduct);
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching product:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -138,7 +138,7 @@ export async function PUT(
       success: true, 
       product: transformedProduct 
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error updating product:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -176,7 +176,7 @@ export async function DELETE(
       success: true, 
       message: 'Product deleted successfully' 
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error deleting product:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

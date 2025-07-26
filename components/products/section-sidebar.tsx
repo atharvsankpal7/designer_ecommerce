@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Folder, FolderOpen, Filter, X } from 'lucide-react';
-import { SectionHierarchy, buildSectionHierarchy } from '@/lib/section-utils';
+import { SectionHierarchy } from '@/types/section';
 
 interface SectionSidebarProps {
   currentSection: SectionHierarchy;
@@ -41,7 +41,7 @@ export function SectionSidebar({ currentSection }: SectionSidebarProps) {
       
       // Auto-expand current section's parent hierarchy
       expandCurrentSectionHierarchy(data, currentSection.id);
-    } catch (error) {
+    } catch (error : any) {
       console.error('Error fetching sections:', error);
     }
   };
@@ -105,7 +105,10 @@ export function SectionSidebar({ currentSection }: SectionSidebarProps) {
     setPriceRange([0, 10000]);
   };
 
-  const renderSectionTree = (sections: SectionHierarchy[], parentSlugs: string[] = [], level = 0) => {
+  const renderSectionTree = (sections: SectionHierarchy[] | undefined, parentSlugs: string[] = [], level = 0) => {
+    if(!sections){
+      return null
+    }
     return sections.map((section) => {
       const isCurrentSection = section.id === currentSection.id;
       const hasChildren = section.children && section.children.length > 0;
@@ -189,7 +192,7 @@ export function SectionSidebar({ currentSection }: SectionSidebarProps) {
           <div className="px-2">
             <Slider
               value={priceRange}
-              onValueChange={setPriceRange}
+              // onValueChange={setPriceRange}
               max={10000}
               min={0}
               step={100}

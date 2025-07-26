@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     await order.save();
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error verifying code:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

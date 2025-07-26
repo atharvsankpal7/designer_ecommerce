@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     // Default: return hierarchy
     const hierarchy = await buildSectionHierarchy(activeOnly);
     return NextResponse.json(hierarchy);
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching sections:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         isActive: section.isActive,
       }
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error creating section:', error);
     if (error.code === 11000) {
       return NextResponse.json({ error: 'Section name already exists in this category' }, { status: 400 });

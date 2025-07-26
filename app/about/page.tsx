@@ -1,8 +1,9 @@
-import { Header } from '@/components/layout/header';
+import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Target, Eye, Users } from 'lucide-react';
 import { Metadata } from 'next';
+import { HeroSection } from '@/components/home/hero-section';
 
 export const metadata: Metadata = {
   title: 'About SSCreation - Our Story & Mission | Premium Graphic Design Templates',
@@ -21,8 +22,10 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <div className="min-h-screen">
-      <Header />
+      <SSRHeader />
       <main>
+      <HeroSection />
+
         <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">

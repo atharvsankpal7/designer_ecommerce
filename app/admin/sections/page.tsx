@@ -75,7 +75,7 @@ export default function AdminSections() {
       
       setSections(hierarchyData);
       setFlatSections(flatData);
-    } catch (error) {
+    } catch (error : any) {
       console.error('Error fetching sections:', error);
       toast.error('Failed to fetch sections');
     }
@@ -110,7 +110,62 @@ export default function AdminSections() {
       } else {
         toast.error(result.error || 'Failed to save section');
       }
-    } catch (error) {
+    } catch (error : any) {
+      toast.error('Something went wrong');
+    }
+  };
+
+  const handleNavbarToggle = async (sectionId: string, currentValue: boolean) => {
+    try {
+      const response = await fetch('/api/sections/navbar-toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sectionId,
+          showInNavbar: !currentValue
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(
+          !currentValue 
+            ? `Enabled navbar for section and ${result.updatedSections - 1} children`
+            : `Disabled navbar for section and ${result.updatedSections - 1} children`
+        );
+        fetchSections();
+      } else {
+        toast.error(result.error || 'Failed to update navbar settings');
+      }
+    } catch (error : any) {
+      toast.error('Something went wrong');
+    }
+  };
+
+  const handleHomepageToggle = async (sectionId: string, currentValue: boolean) => {
+    try {
+      const response = await fetch(`/api/sections/${sectionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          showInHomepage: !currentValue
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(
+          !currentValue 
+            ? 'Section enabled for homepage'
+            : 'Section disabled for homepage'
+        );
+        fetchSections();
+      } else {
+        toast.error(result.error || 'Failed to update homepage settings');
+      }
+    } catch (error : any) {
       toast.error('Something went wrong');
     }
   };
@@ -145,7 +200,7 @@ export default function AdminSections() {
       } else {
         toast.error(result.error || 'Failed to delete section');
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error('Something went wrong');
     }
   };
@@ -234,6 +289,22 @@ export default function AdminSections() {
               </div>
               
               <div className="flex space-x-2">
+                <Button
+                  variant={section.showInNavbar ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleNavbarToggle(section.id, section.showInNavbar)}
+                  title={section.showInNavbar ? "Remove from navbar (includes children)" : "Add to navbar (includes children)"}
+                >
+                  <Navigation className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={section.showInHomepage ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleHomepageToggle(section.id, section.showInHomepage)}
+                  title={section.showInHomepage ? "Remove from homepage" : "Add to homepage"}
+                >
+                  <Home className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -437,6 +508,29 @@ export default function AdminSections() {
                           Homepage
                         </Badge>
                       )}
+                    </div>
+                    
+                    <div className="flex space-x-2 mb-3">
+                      <Button
+                        variant={section.showInNavbar ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleNavbarToggle(section.id, section.showInNavbar)}
+                        title={section.showInNavbar ? "Remove from navbar (includes children)" : "Add to navbar (includes children)"}
+                        className="flex-1"
+                      >
+                        <Navigation className="h-4 w-4 mr-1" />
+                        Nav
+                      </Button>
+                      <Button
+                        variant={section.showInHomepage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleHomepageToggle(section.id, section.showInHomepage)}
+                        title={section.showInHomepage ? "Remove from homepage" : "Add to homepage"}
+                        className="flex-1"
+                      >
+                        <Home className="h-4 w-4 mr-1" />
+                        Home
+                      </Button>
                     </div>
                     
                     <div className="flex space-x-2">

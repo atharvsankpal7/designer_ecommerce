@@ -77,6 +77,20 @@ export function ProductGrid({
     return Math.round(((original - discount) / original) * 100);
   };
 
+  // Build proper section URL based on current section path context
+  const buildSectionUrl = (sectionSlug: string) => {
+    // If we're already in a section context, navigate to the specific section
+    // Otherwise, navigate to the section directly
+    return `/products/${sectionSlug}`;
+  };
+
+  // Get section badge variant based on section hierarchy level (if available)
+  const getSectionBadgeVariant = (section: ProductSection) => {
+    // You could extend this to show different variants for different levels
+    // For now, we'll use a consistent style with hover effects
+    return "outline";
+  };
+
   const renderGridView = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => (
@@ -123,12 +137,23 @@ export function ProductGrid({
             
             <div className="flex flex-wrap gap-1 mb-3">
               {product.sections.slice(0, 2).map((section) => (
-                <Badge key={section.id} variant="outline" className="text-xs">
-                  {section.name}
+                <Badge 
+                  key={section.id} 
+                  variant="outline" 
+                  className="text-xs hover:bg-purple-50 hover:border-purple-300 transition-colors cursor-pointer"
+                  // asChild
+                >
+                  <Link href={`/products/${section.slug}`}>
+                    {section.name}
+                  </Link>
                 </Badge>
               ))}
               {product.sections.length > 2 && (
-                <Badge variant="outline" className="text-xs">
+                <Badge 
+                  variant="outline" 
+                  className="text-xs bg-gray-100 hover:bg-gray-200 transition-colors cursor-help"
+                  title={`Also in: ${product.sections.slice(2).map(s => s.name).join(', ')}`}
+                >
                   +{product.sections.length - 2}
                 </Badge>
               )}
@@ -194,11 +219,27 @@ export function ProductGrid({
                     </p>
                     
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {product.sections.map((section) => (
-                        <Badge key={section.id} variant="outline" className="text-xs">
-                          {section.name}
+                      {product.sections.slice(0, 3).map((section) => (
+                        <Badge 
+                          key={section.id} 
+                          variant="outline" 
+                          className="text-xs hover:bg-purple-50 hover:border-purple-300 transition-colors cursor-pointer"
+                          // asChild
+                        >
+                          <Link href={`/products/${section.slug}`}>
+                            {section.name}
+                          </Link>
                         </Badge>
                       ))}
+                      {product.sections.length > 3 && (
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs bg-gray-100 hover:bg-gray-200 transition-colors cursor-help"
+                          title={`Also in: ${product.sections.slice(3).map(s => s.name).join(', ')}`}
+                        >
+                          +{product.sections.length - 3}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   
@@ -283,7 +324,7 @@ export function ProductGrid({
       </div>
 
       {/* Products */}
-      {products.length > 0 ? (
+      {products?.length > 0 ? (
         <>
           {viewMode === 'grid' ? renderGridView() : renderListView()}
           

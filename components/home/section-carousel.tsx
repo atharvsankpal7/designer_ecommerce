@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import connectDB from "@/lib/mongodb"
 import { Product } from "@/lib/models"
 import { ModernAutoScrollCarousel } from "@/components/product-slider/AutoScrollCarousel"
-import { SectionHierarchy } from "@/lib/section-utils"
+import { SectionHierarchy } from "@/types/section"
 
 interface ProductType {
   id: string
@@ -39,7 +39,7 @@ async function getSectionProducts(sectionId: string): Promise<ProductType[]> {
     }))
 
     return transformedProducts
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error fetching section products:", error)
     return []
   }
@@ -53,39 +53,12 @@ export async function SectionCarousel({ section }: SectionCarouselProps) {
   const sectionUrl = `/products/${section.slug}`;
 
   return (
-    <section className="py-16 lg:py-24 relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
-      {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-indigo-100/40 to-purple-100/40 blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-gradient-to-tr from-blue-100/30 to-cyan-100/30 blur-3xl animate-pulse delay-1000"></div>
-      </div>
+    <section className="py-6 relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+      
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section header */}
-        <div className="text-center mb-12 lg:mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-indigo-100 rounded-full mb-6 shadow-sm hover:shadow-md transition-all duration-300">
-            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 animate-pulse"></div>
-            <Crown className="w-4 h-4 text-indigo-600" />
-            <span className="text-sm font-semibold text-indigo-900 tracking-wide">
-              {section.name.toUpperCase()}
-            </span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 tracking-tight">
-            <span className="bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 bg-clip-text text-transparent">
-              {section.name}
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Collection
-            </span>
-          </h2>
-
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
-            Discover our curated selection of premium {section.name.toLowerCase()} designs, 
-            crafted with precision for the discerning creator.
-          </p>
-        </div>
+        
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black  text-center tracking-tight bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 bg-clip-text text-transparent">{section.name} Collection</h2>
 
         {/* Carousel section */}
         <div className="relative">
@@ -93,7 +66,7 @@ export async function SectionCarousel({ section }: SectionCarouselProps) {
         </div>
 
         {/* CTA button */}
-        <div className="flex justify-center mt-12">
+        <div className="flex justify-center mt-1">
           <Button
             asChild
             size="lg"

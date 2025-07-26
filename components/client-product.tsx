@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Header } from '@/components/layout/header';
+import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
-import { ProductCard } from '@/components/products/product-card';
+
 import { PurchaseModal } from '@/components/products/purchase-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, Expand } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton'; 
 import Link from 'next/link';
@@ -20,6 +20,12 @@ import {
   DialogContent,
 } from '@/components/ui/dialog';
 
+interface ProductSection {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface Product {
   id: string;
   title: string;
@@ -27,14 +33,19 @@ interface Product {
   displayImage: string;
   originalPrice: number;
   discountPrice?: number;
-  section: {
-    name: string;
-  };
+  sections: ProductSection[];
 }
 
-interface Section {
+interface SectionHierarchy {
   id: string;
   name: string;
+  slug: string;
+  level: number;
+  displayOrder: number;
+  showInNavbar: boolean;
+  showInHomepage: boolean;
+  isActive: boolean;
+  children?: SectionHierarchy[];
 }
 
 // Loading Skeleton Components
@@ -72,7 +83,7 @@ export default function Products() {
   const searchParams = useSearchParams();
   
   const [products, setProducts] = useState<Product[]>([]);
-  const [sections, setSections] = useState<Section[]>([]);
+  const [sections, setSections] = useState<SectionHierarchy[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
@@ -97,13 +108,15 @@ export default function Products() {
     try {
       setIsLoadingProducts(true);
       const params = new URLSearchParams();
-      if (selectedSection !== 'all') params.append('section', selectedSection);
+      if (selectedSection !== 'all') {
+        params.append('section', selectedSection);
+      }
       if (searchTerm) params.append('search', searchTerm);
       
       const response = await fetch(`/api/products?${params}`);
       const data = await response.json();
       setProducts(data);
-    } catch (error) {
+    } catch (error : any) {
       console.error('Error fetching products:', error);
     } finally {
       setIsLoadingProducts(false);
@@ -113,10 +126,10 @@ export default function Products() {
   const fetchSections = async () => {
     try {
       setIsLoadingSections(true);
-      const response = await fetch('/api/sections');
+      const response = await fetch('/api/sections?type=hierarchy&activeOnly=true');
       const data = await response.json();
       setSections(data);
-    } catch (error) {
+    } catch (error : any) {
       console.error('Error fetching sections:', error);
     } finally {
       setIsLoadingSections(false);
@@ -156,9 +169,33 @@ export default function Products() {
     }
   };
 
+  // Render hierarchical section options with proper indentation
+  const renderSectionOptions = (sections: SectionHierarchy[], level = 0): JSX.Element[] => {
+    const options: JSX.Element[] = [];
+    
+    sections.forEach((section) => {
+      // Create indentation based on level
+      const indent = '  '.repeat(level);
+      const levelIndicator = level === 0 ? '' : level === 1 ? '└ ' : '  └ ';
+      
+      options.push(
+        <SelectItem key={section.id} value={section.name}>
+          {indent}{levelIndicator}{section.name}
+        </SelectItem>
+      );
+      
+      // Recursively render children
+      if (section.children && section.children.length > 0) {
+        options.push(...renderSectionOptions(section.children, level + 1));
+      }
+    });
+    
+    return options;
+  };
+
   return (
     <div className="min-h-screen">
-      <Header />
+      <SSRHeader />
       <main>
         <section className="py-8 bg-gray-50">
           <div className="container mx-auto px-4">
@@ -186,11 +223,7 @@ export default function Products() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Sections</SelectItem>
-                    {sections.map((section) => (
-                      <SelectItem key={section.id} value={section.name}>
-                        {section.name}
-                      </SelectItem>
-                    ))}
+                    {renderSectionOptions(sections)}
                   </SelectContent>
                 </Select>
               </div>
@@ -217,9 +250,24 @@ export default function Products() {
                         onClick={() => setExpandedImage(product.displayImage)}
                       />
                       
-                      <Badge className="absolute top-2 left-2 bg-primary">
-                        {product?.section?.name}
-                      </Badge>
+                      <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[calc(100%-4rem)]">
+                        {product.sections && product.sections.length > 0 ? (
+                          product.sections.slice(0, 2).map((section) => (
+                            <Badge key={section.id} className="bg-primary text-xs">
+                              {section.name}
+                            </Badge>
+                          ))
+                        ) : (
+                          <Badge className="bg-gray-500 text-xs">
+                            No Category
+                          </Badge>
+                        )}
+                        {product.sections && product.sections.length > 2 && (
+                          <Badge className="bg-primary/80 text-xs">
+                            +{product.sections.length - 2}
+                          </Badge>
+                        )}
+                      </div>
 
                       {product.discountPrice && (
                         <Badge className="absolute top-2 right-2 bg-red-500">

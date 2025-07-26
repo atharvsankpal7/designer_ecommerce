@@ -15,7 +15,7 @@ import {
   Info,
   X
 } from 'lucide-react';
-import { SectionHierarchy } from '@/lib/section-utils';
+import { SectionHierarchy } from '@/types/section';
 import { toast } from 'sonner';
 
 interface HierarchicalSectionSelectorProps {
@@ -46,7 +46,7 @@ export function HierarchicalSectionSelector({
       
       // Auto-expand sections that have selected children
       autoExpandSelectedSections(data, selectedSectionIds);
-    } catch (error) {
+    } catch (error : any) {
       console.error('Error fetching sections:', error);
       toast.error('Failed to load sections');
     } finally {
@@ -197,7 +197,10 @@ export function HierarchicalSectionSelector({
     onSelectionChange([]);
   };
 
-  const renderSectionTree = (sections: SectionHierarchy[], level = 0) => {
+  const renderSectionTree = (sections: SectionHierarchy[] | undefined, level = 0) => {
+    if(!sections){
+      return null
+    }
     return sections.map((section) => {
       const isSelected = selectedSectionIds.includes(section.id);
       const hasChildren = section.children && section.children.length > 0;

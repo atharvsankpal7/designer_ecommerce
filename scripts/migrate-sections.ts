@@ -267,7 +267,7 @@ async function migrateSections() {
     console.log(`   Products: ${totalProducts}`);
     console.log(`   Bundles: ${totalBundles}`);
     
-  } catch (error) {
+  } catch (error : any) {
     console.error('❌ Migration failed:', error);
     process.exit(1);
   }

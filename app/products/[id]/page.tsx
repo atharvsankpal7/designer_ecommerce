@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Header } from '@/components/layout/header';
+import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
 import { PurchaseModal } from '@/components/products/purchase-modal';
 import { Button } from '@/components/ui/button';
@@ -21,9 +21,7 @@ interface Product {
   displayImage: string;
   originalPrice: number;
   discountPrice?: number;
-  section: {
-    name: string;
-  };
+ 
   isFeatured: boolean;
 }
 
@@ -47,14 +45,12 @@ export default function ProductDetail() {
     try {
       setLoading(true);
       const response = await fetch(`/api/products/${productId}`);
-      
       if (!response.ok) {
         throw new Error('Product not found');
       }
-      
       const data = await response.json();
       setProduct(data);
-    } catch (error) {
+    } catch (error : any) {
       console.error('Error fetching product:', error);
       router.push('/products');
     } finally {
@@ -76,7 +72,7 @@ export default function ProductDetail() {
           text: product?.description,
           url: window.location.href,
         });
-      } catch (error) {
+      } catch (error : any) {
         console.log('Error sharing:', error);
       }
     } else {
@@ -88,7 +84,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <Header />
+        <SSRHeader />
         <main className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
@@ -111,7 +107,7 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="min-h-screen">
-        <Header />
+        <SSRHeader />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
@@ -131,7 +127,7 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      <SSRHeader />
       <main className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <Button
@@ -176,7 +172,7 @@ export default function ProductDetail() {
           <div className="space-y-6">
             <div>
               <Badge variant="secondary" className="mb-3">
-                {product?.section?.name}
+                {/* {product?.section?.name} */}
               </Badge>
               <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
               <p className="text-gray-600 text-lg leading-relaxed">

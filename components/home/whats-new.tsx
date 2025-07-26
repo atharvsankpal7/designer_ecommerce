@@ -38,7 +38,7 @@ async function getNewProducts(): Promise<ProductType[]> {
     }));
 
     return transformedProducts;
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error fetching new products:", error);
     return [];
   }

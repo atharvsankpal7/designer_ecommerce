@@ -58,7 +58,7 @@ export function BundlePurchaseModal({ bundle, isOpen, onClose }: BundlePurchaseM
         const errorData = await response.json();
         toast.error(errorData.error || 'Failed to send verification code');
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error('Something went wrong');
     } finally {
       setLoading(false);
@@ -91,7 +91,7 @@ export function BundlePurchaseModal({ bundle, isOpen, onClose }: BundlePurchaseM
         const errorData = await response.json();
         toast.error(errorData.error || 'Invalid verification code');
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error('Something went wrong');
     } finally {
       setLoading(false);
@@ -161,7 +161,7 @@ export function BundlePurchaseModal({ bundle, isOpen, onClose }: BundlePurchaseM
       } else {
         toast.error(data.error || 'Failed to create order');
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error('Something went wrong');
     } finally {
       setLoading(false);

@@ -35,7 +35,7 @@ export async function GET(
     };
 
     return NextResponse.json(transformedSection);
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching section:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -115,9 +115,9 @@ export async function PUT(
       success: true, 
       section: transformedSection 
     });
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error updating section:', error);
-    if (error.code === 11000) {
+    if (error?.code === 11000) {
       return NextResponse.json({ error: 'Section name already exists in this category' }, { status: 400 });
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -164,7 +164,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error deleting section:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

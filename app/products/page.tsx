@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
-import { Header } from '@/components/layout/header';
+import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
 import { ProductGrid } from '@/components/products/product-grid';
 import { AllProductsSidebar } from '@/components/products/all-products-sidebar';
 import connectDB from '@/lib/mongodb';
 import { Product, Section } from '@/lib/models';
+
 
 interface ProductsPageProps {
   searchParams: {
@@ -27,10 +28,13 @@ async function getAllProducts(page = 1, sort = 'newest', priceRange?: string, se
   
   // Apply section filter
   if (sectionName) {
-    const section = await Section.findOne({ name: sectionName });
+    const section = await Section.findOne({ 
+      name: { $regex: new RegExp(sectionName, 'i') },
+      isActive: true 
+    });
     if (section) {
       query.sectionIds = section._id;
-  }
+    }
   }
   
   // Apply price range filter
@@ -118,7 +122,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <SSRHeader />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">

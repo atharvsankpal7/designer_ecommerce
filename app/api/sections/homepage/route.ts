@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const homepageSections = await getHomepageSections();
     return NextResponse.json(homepageSections);
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching homepage sections:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

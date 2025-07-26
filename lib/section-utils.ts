@@ -1,22 +1,7 @@
 import connectDB from './mongodb';
 import Section from '@/models/Section';
 import { ISection } from '@/models/Section';
-
-export interface SectionWithChildren extends ISection {
-  children?: SectionWithChildren[];
-}
-
-export interface SectionHierarchy {
-  id: string;
-  name: string;
-  slug: string;
-  level: number;
-  displayOrder: number;
-  showInNavbar: boolean;
-  showInHomepage: boolean;
-  isActive: boolean;
-  children?: SectionHierarchy[];
-}
+import { SectionHierarchy, SectionWithChildren } from '@/types/section';
 
 // Generate slug from name
 export function generateSlug(name: string): string {
@@ -72,41 +57,69 @@ export async function buildSectionHierarchy(activeOnly = false): Promise<Section
   return rootSections;
 }
 
-// Get navigation sections (only those marked for navbar)
+// Get navigation sections (maintains proper hierarchy)
 export async function getNavigationSections(): Promise<SectionHierarchy[]> {
   await connectDB();
   
-  const sections = await Section.find({ 
-    isActive: true, 
-    showInNavbar: true 
-  }).sort({ level: 1, displayOrder: 1 });
+  // Get all active sections first
+  const allSections = await Section.find({ isActive: true }).sort({ level: 1, displayOrder: 1 });
   
-  const sectionMap = new Map<string, SectionHierarchy>();
-  const rootSections: SectionHierarchy[] = [];
+  // Find sections that should be shown in navbar or have children that should be shown
+  const navbarSectionIds = new Set<string>();
   
-  sections.forEach(section => {
-    const hierarchySection: SectionHierarchy = {
-      id: section._id.toString(),
-      name: section.name,
-      slug: section.slug,
-      level: section.level,
-      displayOrder: section.displayOrder,
-      showInNavbar: section.showInNavbar,
-      showInHomepage: section.showInHomepage,
-      isActive: section.isActive,
-      children: []
-    };
-    
-    sectionMap.set(section._id.toString(), hierarchySection);
-    
-    if (section.level === 0) {
-      rootSections.push(hierarchySection);
+  // First pass: collect all sections marked for navbar
+  allSections.forEach(section => {
+    if (section.showInNavbar) {
+      navbarSectionIds.add(section._id.toString());
     }
   });
   
-  // Build parent-child relationships for navbar sections
-  sections.forEach(section => {
-    if (section.parentId) {
+  // Second pass: include parent sections if their children are in navbar
+  const addParentSections = (sectionId: string) => {
+    const section = allSections.find(s => s._id.toString() === sectionId);
+    if (section && section.parentId) {
+      const parentId = section.parentId.toString();
+      if (!navbarSectionIds.has(parentId)) {
+        navbarSectionIds.add(parentId);
+        addParentSections(parentId); // Recursively add grandparents
+      }
+    }
+  };
+  
+  // Add parent sections for all navbar sections
+  Array.from(navbarSectionIds).forEach(sectionId => {
+    addParentSections(sectionId);
+  });
+  
+  // Build the hierarchy with only relevant sections
+  const sectionMap = new Map<string, SectionHierarchy>();
+  const rootSections: SectionHierarchy[] = [];
+  
+  allSections.forEach(section => {
+    if (navbarSectionIds.has(section._id.toString())) {
+      const hierarchySection: SectionHierarchy = {
+        id: section._id.toString(),
+        name: section.name,
+        slug: section.slug,
+        level: section.level,
+        displayOrder: section.displayOrder,
+        showInNavbar: section.showInNavbar,
+        showInHomepage: section.showInHomepage,
+        isActive: section.isActive,
+        children: []
+      };
+      
+      sectionMap.set(section._id.toString(), hierarchySection);
+      
+      if (section.level === 0) {
+        rootSections.push(hierarchySection);
+      }
+    }
+  });
+  
+  // Build parent-child relationships
+  allSections.forEach(section => {
+    if (navbarSectionIds.has(section._id.toString()) && section.parentId) {
       const parent = sectionMap.get(section.parentId.toString());
       const child = sectionMap.get(section._id.toString());
       

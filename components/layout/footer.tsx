@@ -88,10 +88,10 @@ export function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                { href: '/products?section=Wedding', label: 'Wedding Designs' },
+                { href: '/products?section=Festival Designs', label: 'Festival Designs' },
                 { href: '/bundles', label: 'Design Bundles' },
-                { href: '/products?section=Business', label: 'Business Cards' },
-                { href: '/products?section=Social', label: 'Social Media' },
+                { href: '/products?section=Business Templates', label: 'Business Cards' },
+                { href: '/products?section=Social Media', label: 'Social Media' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link 

@@ -34,7 +34,7 @@ export function HeroSlider() {
   }, [])
 
   return (
-    <section className="relative w-full h-[60vh] sm:h-[70vh] lg:h-[35vh] overflow-hidden">
+    <section className="relative w-full h-[12vh] sm:h-[20vh] lg:h-[35vh] overflow-hidden ">
       {/* Background Images */}
       {heroImages.map((image, index) => (
         <div

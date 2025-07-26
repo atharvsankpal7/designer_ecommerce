@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
     
     const { searchParams } = new URL(request.url);
-    const section = searchParams.get('section')?.toLowerCase();
+    const sectionName = searchParams.get('section');
     const search = searchParams.get('search');
     const featured = searchParams.get('featured');
     const newProducts = searchParams.get('new');
@@ -16,21 +16,19 @@ export async function GET(request: NextRequest) {
 
     const query: any = { isActive: true };
 
-    if (section && section !== 'all') {
+    if (sectionName && sectionName !== 'all') {
       try {
-        // First try to find the section by name
+        // Find the section by name (case-insensitive)
         const sectionDoc = await Section.findOne({ 
-          name: { $regex: new RegExp(section, 'i') } 
+          name: { $regex: new RegExp(sectionName, 'i') },
+          isActive: true
         });
         
         if (sectionDoc) {
           query.sectionIds = sectionDoc._id;
-        } else if (mongoose.Types.ObjectId.isValid(section)) {
-          // If not found by name but is a valid ObjectId, use it directly
-          query.sectionIds = section;
         }
-      } catch (error) {
-        console.error('Error finding section:', error);
+      } catch (error : any) {
+        console.error('Error finding section by name:', error);
       }
     }
 
@@ -79,7 +77,7 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json(transformedProducts);
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching products:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -110,7 +108,7 @@ export async function POST(request: NextRequest) {
     await product.save();
 
     return NextResponse.json({ success: true, id: product._id });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error creating product:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

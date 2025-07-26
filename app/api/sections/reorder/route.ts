@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     await Promise.all(updatePromises);
     
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error reordering sections:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

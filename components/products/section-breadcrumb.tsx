@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
-import { SectionHierarchy, buildSectionPath } from '@/lib/section-utils';
+import { buildSectionPath } from '@/lib/section-utils';
+import { SectionHierarchy } from '@/types/section';
 
 interface SectionBreadcrumbProps {
   breadcrumb: SectionHierarchy[];

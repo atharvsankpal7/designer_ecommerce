@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json(transformedBundles);
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching bundles:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     await bundle.save();
 
     return NextResponse.json({ success: true, id: bundle._id });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error creating bundle:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

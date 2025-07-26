@@ -1,52 +1,13 @@
-'use client';
-
-import { useState } from 'react';
-import { Header } from '@/components/layout/header';
+import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
-import { toast } from 'sonner';
-
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        toast.success('Message sent successfully!');
-        setFormData({ name: '', email: '', phone: '', message: '' });
-      } else {
-        toast.error('Failed to send message');
-      }
-    } catch (error) {
-      toast.error('Something went wrong');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen">
-      <Header />
+      <SSRHeader />
+
       <main>
+
         <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
@@ -60,8 +21,7 @@ export default function Contact() {
 
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12">
-              <div>
+            <div className="max-w-2xl mx-auto">
                 <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
                 
                 <div className="space-y-6">
@@ -115,57 +75,6 @@ export default function Contact() {
                   </div>
                 </div>
               </div>
-
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
-                  
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <Input
-                        placeholder="Your Name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Input
-                        type="email"
-                        placeholder="Your Email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Input
-                        type="tel"
-                        placeholder="Your Phone (Optional)"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Textarea
-                        placeholder="Your Message"
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        rows={5}
-                        required
-                      />
-                    </div>
-                    
-                    <Button type="submit" disabled={loading} className="w-full">
-                      {loading ? 'Sending...' : 'Send Message'}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </section>
       </main>

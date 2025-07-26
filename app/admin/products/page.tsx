@@ -82,7 +82,7 @@ export default function AdminProducts() {
       const response = await fetch("/api/products");
       const data = await response.json();
       setProducts(data);
-    } catch (error) {
+    } catch (error : any) {
       console.error("Error fetching products:", error);
       toast.error("Failed to load products.");
     }
@@ -108,7 +108,7 @@ export default function AdminProducts() {
       const data = await response.json();
       setFormData((prev) => ({ ...prev, displayImage: data.secure_url }));
       toast.success("Display image uploaded successfully");
-    } catch (error) {
+    } catch (error : any) {
       toast.error("Failed to upload display image");
     } finally {
       setUploading(false);
@@ -179,7 +179,7 @@ export default function AdminProducts() {
         console.error("API Error:", errorData);
         toast.error("Failed to save product: " + (errorData.message || "Unknown error"));
       }
-    } catch (error) {
+    } catch (error : any) {
       console.error("Submit error:", error);
       toast.error("Something went wrong");
     }
@@ -215,7 +215,7 @@ export default function AdminProducts() {
       } else {
         toast.error("Failed to delete product");
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error("Something went wrong");
     }
   };

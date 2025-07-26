@@ -44,7 +44,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       } else {
         toast.error('Failed to send verification code');
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error('Something went wrong');
     } finally {
       setLoading(false);
@@ -71,7 +71,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       } else {
         toast.error('Invalid verification code');
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error('Something went wrong');
     } finally {
       setLoading(false);
@@ -132,7 +132,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       } else {
         toast.error('Failed to create order');
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error('Something went wrong');
     } finally {
       setLoading(false);

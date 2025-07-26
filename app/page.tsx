@@ -4,7 +4,7 @@ import { ProductSlider } from '@/components/home/product-slider';
 import { BundleSection } from '@/components/home/bundle-section';
 import { WhatsNew } from '@/components/home/whats-new';
 import { HomepageSections } from '@/components/home/homepage-sections';
-import { Header } from '@/components/layout/header';
+import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
 import { Metadata } from 'next';
 
@@ -25,10 +25,9 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <Header />
+      <SSRHeader />
       <main>
         <HeroSlider />
-        <HeroSection />
         <ProductSlider />
         <HomepageSections />
         <BundleSection />

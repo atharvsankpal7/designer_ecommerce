@@ -88,7 +88,7 @@ export default function AdminBundles() {
       const response = await fetch("/api/bundles");
       const data = await response.json();
       setBundles(data);
-    } catch (error) {
+    } catch (error : any) {
       console.error("Error fetching bundles:", error);
       toast.error("Failed to load bundles.");
     } finally {
@@ -102,7 +102,7 @@ export default function AdminBundles() {
       const response = await fetch("/api/products");
       const data = await response.json();
       setProducts(data);
-    } catch (error) {
+    } catch (error : any) {
       console.error("Error fetching products:", error);
       toast.error("Failed to load products for selection.");
     } finally {
@@ -128,7 +128,7 @@ export default function AdminBundles() {
       const data = await response.json();
       setFormData((prev) => ({ ...prev, displayImage: data.secure_url }));
       toast.success("Display image uploaded successfully");
-    } catch (error) {
+    } catch (error : any) {
       console.error("Cloudinary upload error:", error);
       toast.error("Failed to upload display image");
     } finally {
@@ -180,7 +180,7 @@ export default function AdminBundles() {
         console.error("API Error:", errorData);
         toast.error(`Failed to save bundle: ${errorData.message || 'Unknown error'}`);
       }
-    } catch (error) {
+    } catch (error : any) {
       console.error("Submit error:", error);
       toast.error("Something went wrong");
     }
@@ -217,7 +217,7 @@ export default function AdminBundles() {
         const errorData = await response.json();
         toast.error(`Failed to delete bundle: ${errorData.message || 'Unknown error'}`);
       }
-    } catch (error) {
+    } catch (error : any) {
       console.error("Delete error:", error);
       toast.error("Something went wrong");
     }

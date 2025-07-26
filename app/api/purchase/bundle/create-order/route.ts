@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       amount: razorpayOrder.amount,
       bundleName: bundle.name,
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error creating bundle order:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

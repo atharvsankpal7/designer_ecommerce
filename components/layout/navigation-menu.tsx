@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
-import { SectionHierarchy } from '@/lib/section-utils';
+import { SectionHierarchy } from '@/types/section';
 
 export function NavigationMenu() {
   const [sections, setSections] = useState<SectionHierarchy[]>([]);
@@ -18,7 +18,7 @@ export function NavigationMenu() {
       const response = await fetch('/api/sections/navigation');
       const data = await response.json();
       setSections(data);
-    } catch (error) {
+    } catch (error : any) {
       console.error('Error fetching navigation sections:', error);
     }
   };

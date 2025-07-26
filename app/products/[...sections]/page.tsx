@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { Header } from '@/components/layout/header';
+import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
 import { ProductGrid } from '@/components/products/product-grid';
 import { SectionBreadcrumb } from '@/components/products/section-breadcrumb';
@@ -140,7 +140,7 @@ export default async function SectionProductsPage({ params, searchParams }: Prod
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <SSRHeader />
       
       <main className="container mx-auto px-4 py-8">
         <SectionBreadcrumb breadcrumb={breadcrumb} />
@@ -149,11 +149,7 @@ export default async function SectionProductsPage({ params, searchParams }: Prod
           <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
             {section.name}
           </h1>
-          {section.description && (
-            <p className="text-lg text-gray-600 max-w-3xl">
-              {section.description}
-            </p>
-          )}
+          
         </div>
         
         <div className="flex flex-col lg:flex-row gap-8">

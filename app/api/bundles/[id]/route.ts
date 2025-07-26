@@ -58,7 +58,7 @@ export async function GET(
     };
 
     return NextResponse.json(transformedBundle);
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error fetching bundle:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -151,7 +151,7 @@ export async function PUT(
       success: true, 
       bundle: transformedBundle 
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error updating bundle:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -189,7 +189,7 @@ export async function DELETE(
       success: true, 
       message: 'Bundle deleted successfully' 
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error deleting bundle:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

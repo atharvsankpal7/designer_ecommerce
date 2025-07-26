@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     await sendVerificationEmail(email, verificationCode);
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error sending verification email:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

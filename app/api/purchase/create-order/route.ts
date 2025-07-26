@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       orderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error creating order:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

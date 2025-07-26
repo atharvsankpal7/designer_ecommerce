@@ -53,7 +53,7 @@ async function getFeaturedBundles(): Promise<Bundle[]> {
     }));
 
     return transformedBundles;
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error fetching featured bundles:", error);
     return [];
   }

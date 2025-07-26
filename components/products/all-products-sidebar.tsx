@@ -5,11 +5,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
 import { Folder, FolderOpen, Filter, X } from 'lucide-react';
-import { SectionHierarchy, buildSectionHierarchy } from '@/lib/section-utils';
+import { SectionHierarchy } from '@/types/section';
 
 export function AllProductsSidebar() {
   const router = useRouter();
@@ -18,6 +15,22 @@ export function AllProductsSidebar() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [selectedSection, setSelectedSection] = useState<string>('');
+
+  const expandAllSections = (sections: SectionHierarchy[]): Set<string> => {
+    const expanded = new Set<string>();
+    
+    const addToExpanded = (sectionList: SectionHierarchy[]) => {
+      sectionList.forEach(section => {
+        if (section.children && section.children.length > 0) {
+          expanded.add(section.id);
+          addToExpanded(section.children);
+        }
+      });
+    };
+      
+    addToExpanded(sections);
+    return expanded;
+  };
 
   useEffect(() => {
     fetchSections();
@@ -29,9 +42,29 @@ export function AllProductsSidebar() {
       setPriceRange([min, max || 10000]);
     }
     
-    const urlSection = searchParams.get('section');
-    if (urlSection) {
-      setSelectedSection(urlSection);
+    const urlSectionName = searchParams.get('section');
+    if (urlSectionName) {
+      // Find section ID by name for internal state
+      const findSectionIdByName = (sections: SectionHierarchy[], targetName: string): string | null => {
+      for (const section of sections) {
+          if (section.name.toLowerCase() === targetName.toLowerCase()) {
+            return section.id;
+        }
+        if (section.children) {
+            const found = findSectionIdByName(section.children, targetName);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    
+      // We'll set this after sections are loaded
+      setTimeout(() => {
+        const sectionId = findSectionIdByName(sections, urlSectionName);
+        if (sectionId) {
+          setSelectedSection(sectionId);
+        }
+      }, 100);
     }
   }, [searchParams]);
 
@@ -40,7 +73,9 @@ export function AllProductsSidebar() {
       const response = await fetch('/api/sections?type=hierarchy&activeOnly=true');
       const data = await response.json();
       setSections(data);
-    } catch (error) {
+      // Expand all sections by default
+      setExpandedSections(expandAllSections(data));
+    } catch (error : any) {
       console.error('Error fetching sections:', error);
     }
   };
@@ -58,13 +93,31 @@ export function AllProductsSidebar() {
   const handleSectionFilter = (sectionId: string) => {
     const params = new URLSearchParams(searchParams.toString());
     
+    // Find section name by ID
+    const findSectionName = (sections: SectionHierarchy[], targetId: string): string | null => {
+      for (const section of sections) {
+        if (section.id === targetId) {
+          return section.name;
+        }
+        if (section.children) {
+          const found = findSectionName(section.children, targetId);
+          if (found) return found;
+        }
+      }
+      return null;
+  };
+
+    const sectionName = findSectionName(sections, sectionId);
+    
     if (selectedSection === sectionId) {
       // Remove filter if already selected
       params.delete('section');
-      setSelectedSection('');
+    setSelectedSection('');
     } else {
       // Apply new filter
-      params.set('section', sectionId);
+      if (sectionName) {
+        params.set('section', sectionName);
+      }
       setSelectedSection(sectionId);
     }
     
@@ -100,20 +153,22 @@ export function AllProductsSidebar() {
     setSelectedSection('');
   };
 
-  const renderSectionTree = (sections: SectionHierarchy[], level = 0) => {
+  const renderSectionTree = (sections: SectionHierarchy[] | undefined, level = 0) => {
+    if(!sections){
+      return
+    }
     return sections.map((section) => {
       const isSelected = selectedSection === section.id;
       const hasChildren = section.children && section.children.length > 0;
       const isExpanded = expandedSections.has(section.id);
-      
-      return (
+  return (
         <div key={section.id} className={`ml-${level * 3}`}>
           <div className="flex items-center space-x-2 py-1">
             {hasChildren && (
               <button
                 onClick={() => toggleExpanded(section.id)}
                 className="p-1 hover:bg-gray-100 rounded"
-              >
+          >
                 {isExpanded ? (
                   <FolderOpen className="h-4 w-4 text-blue-600" />
                 ) : (
@@ -141,11 +196,11 @@ export function AllProductsSidebar() {
           
           {hasChildren && isExpanded && (
             <div className="ml-4 border-l border-gray-200 pl-2">
-              {renderSectionTree(section.children, level + 1)}
+              {renderSectionTree(section?.children, level + 1)}
             </div>
           )}
         </div>
-      );
+  );
     });
   };
 
@@ -154,52 +209,7 @@ export function AllProductsSidebar() {
 
   return (
     <div className="space-y-6">
-      {/* Active Filters */}
-      {hasActiveFilters && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center justify-between">
-              Active Filters
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllFilters}
-                className="h-6 text-xs"
-              >
-                Clear All
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {selectedSection && (
-              <Badge variant="secondary" className="mr-2">
-                Section Filter
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleSectionFilter(selectedSection)}
-                  className="h-4 w-4 p-0 ml-1"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
-            )}
-            {currentPriceRange && (
-              <Badge variant="secondary">
-                Price: ₹{currentPriceRange.replace('-', ' - ₹')}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearPriceFilter}
-                  className="h-4 w-4 p-0 ml-1"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      
 
       {/* Categories */}
       <Card>
@@ -216,55 +226,7 @@ export function AllProductsSidebar() {
         </CardContent>
       </Card>
 
-      {/* Price Range Filter */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center justify-between">
-            Price Range
-            {currentPriceRange && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearPriceFilter}
-                className="h-6 w-6 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="px-2">
-            <Slider
-              value={priceRange}
-              onValueChange={setPriceRange}
-              max={10000}
-              min={0}
-              step={100}
-              className="w-full"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <span>₹{priceRange[0]}</span>
-            <span>{priceRange[1] >= 10000 ? '₹10000+' : `₹${priceRange[1]}`}</span>
-          </div>
-          
-          <Button 
-            onClick={applyPriceFilter}
-            className="w-full"
-            size="sm"
-          >
-            Apply Filter
-          </Button>
-          
-          {currentPriceRange && (
-            <Badge variant="secondary" className="w-full justify-center">
-              Active: ₹{currentPriceRange.replace('-', ' - ₹')}
-            </Badge>
-          )}
-        </CardContent>
-      </Card>
+      
 
       {/* Quick Links */}
       <Card>

@@ -99,7 +99,7 @@ async function seed() {
     }
 
     console.log('Database seeded successfully!');
-  } catch (error) {
+  } catch (error : any) {
     console.error('Error seeding database:', error);
   }
 }

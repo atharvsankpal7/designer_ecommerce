@@ -13,6 +13,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Skeleton } from "@/components/ui/skeleton"
+import { SSRHeader } from "@/components/layout/ssr-header"
 
 interface Bundle {
   id: string
@@ -46,7 +47,7 @@ export default function Bundles() {
       const response = await fetch("/api/bundles?isActive=true")
       const data = await response.json()
       setBundles(data)
-    } catch (error) {
+    } catch (error : any) {
       console.error("Error fetching bundles:", error)
     } finally {
       setLoading(false)
@@ -82,7 +83,7 @@ export default function Bundles() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50/20 via-white to-purple-50/20">
-      <Header />
+      <SSRHeader />
 
       <main className="overflow-hidden">
         {/* Hero Section */}

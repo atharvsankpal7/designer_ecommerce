@@ -56,7 +56,7 @@ export default function AdminLogin() {
         // Use window.location.href for a full page reload to ensure session is properly set
         window.location.href = '/admin';
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error('Login failed');
     } finally {
       setLoading(false);
