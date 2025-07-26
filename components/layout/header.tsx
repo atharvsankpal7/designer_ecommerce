@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { Menu, X, Phone, Sparkles, Crown } from 'lucide-react';
 import { motion } from "framer-motion";
 import { Button } from '@/components/ui/button';
+import { NavigationMenu } from './navigation-menu';
+import { MobileNavigationSections } from './mobile-navigation-sections';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,22 +46,39 @@ export function Header() {
           </Link>
           
           <nav className="hidden lg:flex items-center space-x-8">
-            {[
-              { href: '/', label: 'Home' },
-              { href: '/about', label: 'About' },
-              { href: '/products', label: 'Products' },
-              { href: '/bundles', label: 'Bundles' },
-              { href: '/contact', label: 'Contact' }
-            ].map((item) => (
-              <Link 
-                key={item.href}
-                href={item.href} 
-                className="relative text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium group py-2"
-              >
-                {item.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-              </Link>
-            ))}
+            <Link 
+              href="/" 
+              className="relative text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium group py-2"
+            >
+              Home
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+            </Link>
+            
+            <Link 
+              href="/about" 
+              className="relative text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium group py-2"
+            >
+              About
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+            </Link>
+            
+            <NavigationMenu />
+            
+            <Link 
+              href="/bundles" 
+              className="relative text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium group py-2"
+            >
+              Bundles
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+            </Link>
+            
+            <Link 
+              href="/contact" 
+              className="relative text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium group py-2"
+            >
+              Contact
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+            </Link>
           </nav>
 
           <div className="hidden lg:flex items-center space-x-6">
@@ -96,22 +115,42 @@ export function Header() {
             transition={{ duration: 0.3 }}
           >
             <div className="flex flex-col space-y-4">
-              {[
-                { href: '/', label: 'Home' },
-                { href: '/about', label: 'About' },
-                { href: '/products', label: 'Products' },
-                { href: '/bundles', label: 'Bundles' },
-                { href: '/contact', label: 'Contact' }
-              ].map((item) => (
-                <Link 
-                  key={item.href}
-                  href={item.href} 
-                  className="text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium py-2 px-4 rounded-lg hover:bg-purple-50"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <Link 
+                href="/" 
+                className="text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium py-2 px-4 rounded-lg hover:bg-purple-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
+                href="/about" 
+                className="text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium py-2 px-4 rounded-lg hover:bg-purple-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link 
+                href="/products" 
+                className="text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium py-2 px-4 rounded-lg hover:bg-purple-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Products
+              </Link>
+              <MobileNavigationSections onLinkClick={() => setIsMenuOpen(false)} />
+              <Link 
+                href="/bundles" 
+                className="text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium py-2 px-4 rounded-lg hover:bg-purple-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Bundles
+              </Link>
+              <Link 
+                href="/contact" 
+                className="text-gray-700 hover:text-purple-600 transition-colors duration-300 font-medium py-2 px-4 rounded-lg hover:bg-purple-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact
+              </Link>
               
               <div className="pt-4 border-t border-gray-200">
                 <a 

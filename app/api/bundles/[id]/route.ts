@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { Bundle } from '@/lib/models';
 import { auth } from '@/lib/auth';
+import mongoose from 'mongoose';
 
 // GET single bundle by ID
 export async function GET(
@@ -11,8 +12,17 @@ export async function GET(
   try {
     await connectDB();
     
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json(
+        { error: 'Invalid bundle ID format' },
+        { status: 400 }
+      );
+    }
+    
     const bundle = await Bundle.findById(params.id)
       .populate('products', 'title displayImage originalPrice discountPrice description')
+      .populate('sectionIds', 'name slug')
       .exec();
 
     if (!bundle) {
@@ -40,6 +50,11 @@ export async function GET(
         originalPrice: product.originalPrice,
         discountPrice: product.discountPrice,
       })),
+      sections: bundle.sectionIds?.map((section: any) => ({
+        id: section._id.toString(),
+        name: section.name,
+        slug: section.slug,
+      })) || [],
     };
 
     return NextResponse.json(transformedBundle);
@@ -63,13 +78,45 @@ export async function PUT(
 
     await connectDB();
     
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json(
+        { error: 'Invalid bundle ID format' },
+        { status: 400 }
+      );
+    }
+    
     const data = await request.json();
+    
+    // Validate that products array is provided and not empty
+    if (data.products && (!Array.isArray(data.products) || data.products.length === 0)) {
+      return NextResponse.json({ error: 'At least one product must be selected' }, { status: 400 });
+    }
+
+    // Validate that sectionIds is an array if provided
+    if (data.sectionIds && !Array.isArray(data.sectionIds)) {
+      return NextResponse.json({ error: 'Section IDs must be an array' }, { status: 400 });
+    }
+
+    // Validate that all section IDs exist if sectionIds is provided and not empty
+    if (data.sectionIds && data.sectionIds.length > 0) {
+      const { Section } = await import('@/lib/models');
+      const validSections = await Section.find({ 
+        _id: { $in: data.sectionIds },
+        isActive: true 
+      });
+
+      if (validSections.length !== data.sectionIds.length) {
+        return NextResponse.json({ error: 'One or more selected sections are invalid' }, { status: 400 });
+      }
+    }
     
     const bundle = await Bundle.findByIdAndUpdate(
       params.id,
       data,
       { new: true, runValidators: true }
-    ).populate('products', 'title displayImage originalPrice discountPrice');
+    ).populate('products', 'title displayImage originalPrice discountPrice')
+     .populate('sectionIds', 'name slug');
 
     if (!bundle) {
       return NextResponse.json({ error: 'Bundle not found' }, { status: 404 });
@@ -93,6 +140,11 @@ export async function PUT(
         originalPrice: product.originalPrice,
         discountPrice: product.discountPrice,
       })),
+      sections: bundle.sectionIds?.map((section: any) => ({
+        id: section._id.toString(),
+        name: section.name,
+        slug: section.slug,
+      })) || [],
     };
 
     return NextResponse.json({ 
@@ -118,6 +170,14 @@ export async function DELETE(
     }
 
     await connectDB();
+    
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json(
+        { error: 'Invalid bundle ID format' },
+        { status: 400 }
+      );
+    }
     
     const bundle = await Bundle.findByIdAndDelete(params.id);
 

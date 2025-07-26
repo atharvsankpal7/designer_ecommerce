@@ -1,21 +1,26 @@
+import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ProductGrid } from '@/components/products/product-grid';
-import { AllProductsSidebar } from '@/components/products/all-products-sidebar';
+import { SectionBreadcrumb } from '@/components/products/section-breadcrumb';
+import { SectionSidebar } from '@/components/products/section-sidebar';
+import { getSectionBySlugPath, getSectionBreadcrumb, buildSectionPath } from '@/lib/section-utils';
 import connectDB from '@/lib/mongodb';
-import { Product, Section } from '@/lib/models';
+import { Product } from '@/lib/models';
 
-interface ProductsPageProps {
+interface ProductPageProps {
+  params: {
+    sections: string[];
+  };
   searchParams: {
     page?: string;
     sort?: string;
     priceRange?: string;
-    section?: string;
   };
 }
 
-async function getAllProducts(page = 1, sort = 'newest', priceRange?: string, sectionName?: string) {
+async function getSectionProducts(sectionId: string, page = 1, sort = 'newest', priceRange?: string) {
   await connectDB();
   
   const limit = 12;
@@ -23,15 +28,8 @@ async function getAllProducts(page = 1, sort = 'newest', priceRange?: string, se
   
   let query: any = {
     isActive: true,
+    sectionIds: sectionId,
   };
-  
-  // Apply section filter
-  if (sectionName) {
-    const section = await Section.findOne({ name: sectionName });
-    if (section) {
-      query.sectionIds = section._id;
-  }
-  }
   
   // Apply price range filter
   if (priceRange) {
@@ -94,46 +92,73 @@ async function getAllProducts(page = 1, sort = 'newest', priceRange?: string, se
   };
 }
 
-export const metadata: Metadata = {
-  title: 'All Products - SSCreation | Premium Graphic Design Templates Collection',
-  description: 'Browse SSCreation\'s complete collection of premium graphic design templates. Find festival designs, business templates, social media graphics, and celebration designs. Instant download with commercial license.',
-  keywords: 'SSCreation products, graphic design templates, premium templates collection, festival designs, business templates, social media templates, poster templates, banner designs, celebration graphics, design marketplace',
-  openGraph: {
-    title: 'All Products - SSCreation | Premium Graphic Design Templates',
-    description: 'Browse SSCreation\'s complete collection of premium graphic design templates. Instant download with commercial license.',
-    url: 'https://sscreation.com/products',
-  },
-  alternates: {
-    canonical: 'https://sscreation.com/products',
-  },
-};
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const slugPath = params.sections.join('/');
+  const section = await getSectionBySlugPath(slugPath);
+  
+  if (!section) {
+    return {
+      title: 'Products - SSCreation',
+      description: 'Browse our premium graphic design templates and digital products.',
+    };
+  }
+  
+  const breadcrumb = await getSectionBreadcrumb(section.id);
+  const breadcrumbText = breadcrumb.map(s => s.name).join(' > ');
+  
+  return {
+    title: `${section.name} - Premium Design Templates | SSCreation`,
+    description: `Explore our ${section.name.toLowerCase()} collection. Premium graphic design templates with instant download and commercial license.`,
+    keywords: `${section.name}, graphic design templates, premium templates, SSCreation, ${section.name.toLowerCase()} designs`,
+    openGraph: {
+      title: `${section.name} - Premium Design Templates`,
+      description: `Explore our ${section.name.toLowerCase()} collection. Premium graphic design templates with instant download.`,
+      url: `https://sscreation.com/products/${slugPath}`,
+    },
+    alternates: {
+      canonical: `https://sscreation.com/products/${slugPath}`,
+    },
+  };
+}
 
-export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+export default async function SectionProductsPage({ params, searchParams }: ProductPageProps) {
+  const slugPath = params.sections.join('/');
+  const section = await getSectionBySlugPath(slugPath);
+  
+  if (!section) {
+    notFound();
+  }
+  
   const page = parseInt(searchParams.page || '1');
   const sort = searchParams.sort || 'newest';
   const priceRange = searchParams.priceRange;
-  const sectionName = searchParams.section;
   
-  const productData = await getAllProducts(page, sort, priceRange, sectionName);
+  const [productData, breadcrumb] = await Promise.all([
+    getSectionProducts(section.id, page, sort, priceRange),
+    getSectionBreadcrumb(section.id)
+  ]);
   
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
+        <SectionBreadcrumb breadcrumb={breadcrumb} />
+        
         <div className="mb-8">
           <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            All Products
+            {section.name}
           </h1>
-          <p className="text-lg text-gray-600 max-w-3xl">
-            Discover our complete collection of premium graphic design templates. 
-            From festival celebrations to business essentials, find the perfect design for every occasion.
-          </p>
+          {section.description && (
+            <p className="text-lg text-gray-600 max-w-3xl">
+              {section.description}
+            </p>
+          )}
         </div>
         
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-64 flex-shrink-0">
-            <AllProductsSidebar />
+            <SectionSidebar currentSection={section} />
           </aside>
           
           <div className="flex-1">
@@ -141,7 +166,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               {...productData}
               sort={sort}
               priceRange={priceRange}
-              sectionPath=""
+              sectionPath={slugPath}
             />
           </div>
         </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { Product } from '@/lib/models';
 import { auth } from '@/lib/auth';
+import mongoose from 'mongoose';
 
 // GET single product by ID
 export async function GET(
@@ -20,8 +21,16 @@ export async function GET(
       );
     }
 
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: 'Invalid product ID format' },
+        { status: 400 }
+      );
+    }
+
     const product = await Product.findById(id)
-      .populate('sectionId', 'name')
+      .populate('sectionIds', 'name slug')
       .exec();
 
     if (!product) {
@@ -40,10 +49,11 @@ export async function GET(
       isFeatured: product.isFeatured,
       isActive: product.isActive,
       createdAt: product.createdAt,
-      section: product.sectionId ? {
-        id: product.sectionId._id.toString(),
-        name: product.sectionId.name,
-      } : null,
+      sections: product.sectionIds ? product.sectionIds.map((section: any) => ({
+        id: section._id.toString(),
+        name: section.name,
+        slug: section.slug,
+      })) : [],
     };
 
     return NextResponse.json(transformedProduct);
@@ -67,18 +77,39 @@ export async function PUT(
 
     await connectDB();
     
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json(
+        { error: 'Invalid product ID format' },
+        { status: 400 }
+      );
+    }
+    
     const data = await request.json();
     
-    // Remove empty sectionId to prevent casting errors
-    if (data.sectionId === '') {
-      delete data.sectionId;
+    // Validate that sectionIds is provided and is an array
+    if (data.sectionIds && (!Array.isArray(data.sectionIds) || data.sectionIds.length === 0)) {
+      return NextResponse.json({ error: 'At least one section must be selected' }, { status: 400 });
+    }
+
+    // Validate that all section IDs exist if sectionIds is provided
+    if (data.sectionIds) {
+      const { Section } = await import('@/lib/models');
+      const validSections = await Section.find({ 
+        _id: { $in: data.sectionIds },
+        isActive: true 
+      });
+
+      if (validSections.length !== data.sectionIds.length) {
+        return NextResponse.json({ error: 'One or more selected sections are invalid' }, { status: 400 });
+      }
     }
 
     const product = await Product.findByIdAndUpdate(
       params.id,
       data,
       { new: true, runValidators: true }
-    ).populate('sectionId', 'name');
+    ).populate('sectionIds', 'name slug');
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -96,10 +127,11 @@ export async function PUT(
       isFeatured: product.isFeatured,
       isActive: product.isActive,
       createdAt: product.createdAt,
-      section: product.sectionId ? {
-        id: product.sectionId._id.toString(),
-        name: product.sectionId.name,
-      } : null,
+      sections: product.sectionIds ? product.sectionIds.map((section: any) => ({
+        id: section._id.toString(),
+        name: section.name,
+        slug: section.slug,
+      })) : [],
     };
 
     return NextResponse.json({ 
@@ -125,6 +157,14 @@ export async function DELETE(
     }
 
     await connectDB();
+    
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json(
+        { error: 'Invalid product ID format' },
+        { status: 400 }
+      );
+    }
     
     const product = await Product.findByIdAndDelete(params.id);
 

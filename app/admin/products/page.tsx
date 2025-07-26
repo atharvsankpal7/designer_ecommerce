@@ -27,6 +27,13 @@ import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HierarchicalSectionSelector } from "@/components/admin/hierarchical-section-selector";
+
+interface ProductSection {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 interface Product {
   id: string;
@@ -38,20 +45,11 @@ interface Product {
   productFiles: string[];
   isFeatured: boolean;
   isActive: boolean;
-  section: {
-    [x: string]: string;
-    name: string;
-  };
-}
-
-interface Section {
-  id: string;
-  name: string;
+  sections: ProductSection[];
 }
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [sections, setSections] = useState<Section[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
@@ -59,7 +57,7 @@ export default function AdminProducts() {
     description: "",
     originalPrice: "",
     discountPrice: "",
-    sectionId: "",
+    sectionIds: [] as string[],
     displayImage: "",
     productFiles: [] as string[],
     isFeatured: false,
@@ -68,13 +66,13 @@ export default function AdminProducts() {
   const [uploading, setUploading] = useState(false);
   const [newFileUrl, setNewFileUrl] = useState("");
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true); // New loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Set loading to true before fetching
-      await Promise.all([fetchProducts(), fetchSections()]);
-      setLoading(false); // Set loading to false after fetching
+      setLoading(true);
+      await fetchProducts();
+      setLoading(false);
     };
     fetchData();
   }, []);
@@ -90,16 +88,7 @@ export default function AdminProducts() {
     }
   };
 
-  const fetchSections = async () => {
-    try {
-      const response = await fetch("/api/sections");
-      const data = await response.json();
-      setSections(data);
-    } catch (error) {
-      console.error("Error fetching sections:", error);
-      toast.error("Failed to load sections.");
-    }
-  };
+
 
   const handleFileUpload = async (file: File) => {
     setUploading(true);
@@ -144,6 +133,12 @@ export default function AdminProducts() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate that at least one section is selected
+    if (formData.sectionIds.length === 0) {
+      toast.error("Please select at least one section");
+      return;
+    }
+
     const validProductFiles = formData.productFiles.filter(
       (file) => file && file.trim() !== ""
     );
@@ -156,7 +151,7 @@ export default function AdminProducts() {
         discountPrice: formData.discountPrice
           ? parseFloat(formData.discountPrice)
           : undefined,
-        sectionId: formData.sectionId,
+        sectionIds: formData.sectionIds,
         displayImage: formData.displayImage,
         productFiles: validProductFiles,
         isFeatured: formData.isFeatured,
@@ -178,7 +173,7 @@ export default function AdminProducts() {
         toast.success(editingProduct ? "Product updated" : "Product created");
         setIsModalOpen(false);
         resetForm();
-        fetchProducts(); // Re-fetch products to update the list
+        fetchProducts();
       } else {
         const errorData = await response.json();
         console.error("API Error:", errorData);
@@ -197,7 +192,7 @@ export default function AdminProducts() {
       description: product.description,
       originalPrice: product.originalPrice.toString(),
       discountPrice: product.discountPrice?.toString() || "",
-      sectionId: product.section?.id || "", // Ensure section.id is accessed safely
+      sectionIds: product.sections?.map(section => section.id) || [],
       displayImage: product.displayImage,
       productFiles: product.productFiles || [],
       isFeatured: product.isFeatured,
@@ -231,7 +226,7 @@ export default function AdminProducts() {
       description: "",
       originalPrice: "",
       discountPrice: "",
-      sectionId: "",
+      sectionIds: [],
       displayImage: "",
       productFiles: [],
       isFeatured: false,
@@ -335,24 +330,13 @@ export default function AdminProducts() {
                 </div>
 
                 <div>
-                  <Label htmlFor="section">Section</Label>
-                  <Select
-                    value={formData.sectionId}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, sectionId: value })
+                  <Label>Sections</Label>
+                  <HierarchicalSectionSelector
+                    selectedSectionIds={formData.sectionIds}
+                    onSelectionChange={(sectionIds) =>
+                      setFormData({ ...formData, sectionIds })
                     }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sections.map((section) => (
-                        <SelectItem key={section.id} value={section.id}>
-                          {section.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
 
                 <div>
@@ -520,9 +504,27 @@ export default function AdminProducts() {
                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                       {product.description}
                     </p>
-                    <p className="text-sm text-gray-500 mb-2">
-                      Section: {product.section?.name || "N/A"}
-                    </p>
+                    <div className="mb-2">
+                      <p className="text-xs text-gray-500 mb-1">Sections:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {product.sections && product.sections.length > 0 ? (
+                          product.sections.slice(0, 3).map((section) => (
+                            <Badge key={section.id} variant="outline" className="text-xs">
+                              {section.name}
+                            </Badge>
+                          ))
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            No sections
+                          </Badge>
+                        )}
+                        {product.sections && product.sections.length > 3 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{product.sections.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between mb-4">

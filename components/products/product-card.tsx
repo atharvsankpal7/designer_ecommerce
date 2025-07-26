@@ -39,7 +39,7 @@ export function ProductCard({ product, onPurchase }: ProductCardProps) {
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <Badge className="absolute top-2 left-2 bg-primary">
-            {product.section.name}
+            {product?.section?.name}
           </Badge>
           {product.discountPrice && (
             <Badge className="absolute top-2 right-2 bg-red-500">

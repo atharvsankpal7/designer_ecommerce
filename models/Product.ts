@@ -5,7 +5,7 @@ export interface IProduct extends Document {
   description: string;
   originalPrice: number;
   discountPrice?: number;
-  sectionId: mongoose.Types.ObjectId;
+  sectionIds: mongoose.Types.ObjectId[];
   displayImage: string;
   productFiles: string[];
   isFeatured: boolean;
@@ -30,11 +30,11 @@ const ProductSchema = new Schema<IProduct>({
   discountPrice: {
     type: Number,
   },
-  sectionId: {
+  sectionIds: [{
     type: Schema.Types.ObjectId,
     ref: 'Section',
     required: true,
-  },
+  }],
   displayImage: {
     type: String,
     required: true,

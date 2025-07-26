@@ -176,7 +176,7 @@ export default function ProductDetail() {
           <div className="space-y-6">
             <div>
               <Badge variant="secondary" className="mb-3">
-                {product.section.name}
+                {product?.section?.name}
               </Badge>
               <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
               <p className="text-gray-600 text-lg leading-relaxed">

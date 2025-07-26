@@ -26,7 +26,14 @@ import { Plus, Edit, Trash2, Upload, Expand, Package } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Skeleton } from "@/components/ui/skeleton"; // Import the Skeleton component
+import { Skeleton } from "@/components/ui/skeleton";
+import { HierarchicalSectionSelector } from "@/components/admin/hierarchical-section-selector";
+
+interface BundleSection {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 interface Bundle {
   id: string;
@@ -38,6 +45,7 @@ interface Bundle {
   isActive: boolean;
   isFeatured: boolean;
   products: Product[];
+  sections: BundleSection[];
 }
 
 interface Product {
@@ -62,6 +70,7 @@ export default function AdminBundles() {
     discountPrice: "",
     displayImage: "",
     products: [] as string[],
+    sectionIds: [] as string[],
     isActive: true,
     isFeatured: false,
   });
@@ -145,6 +154,7 @@ export default function AdminBundles() {
           : undefined,
         displayImage: formData.displayImage,
         products: formData.products, // These are product IDs
+        sectionIds: formData.sectionIds, // These are section IDs
         isActive: formData.isActive,
         isFeatured: formData.isFeatured,
       };
@@ -185,6 +195,7 @@ export default function AdminBundles() {
       discountPrice: bundle.discountPrice?.toString() || "",
       displayImage: bundle.displayImage,
       products: bundle.products.map(p => p.id),
+      sectionIds: bundle.sections?.map(section => section.id) || [],
       isActive: bundle.isActive,
       isFeatured: bundle.isFeatured,
     });
@@ -220,6 +231,7 @@ export default function AdminBundles() {
       discountPrice: "",
       displayImage: "",
       products: [],
+      sectionIds: [],
       isActive: true,
       isFeatured: false,
     });
@@ -371,6 +383,16 @@ export default function AdminBundles() {
                 </div>
 
                 <div>
+                  <Label>Sections</Label>
+                  <HierarchicalSectionSelector
+                    selectedSectionIds={formData.sectionIds}
+                    onSelectionChange={(sectionIds) =>
+                      setFormData({ ...formData, sectionIds })
+                    }
+                  />
+                </div>
+
+                <div>
                   <Label>Select Products for Bundle</Label>
                   {isLoadingProducts ? (
                     <ProductSelectionSkeleton />
@@ -495,6 +517,28 @@ export default function AdminBundles() {
                       <span className="text-sm text-gray-500">
                         {bundle.products.length} product(s)
                       </span>
+                    </div>
+                    
+                    <div className="mb-2">
+                      <p className="text-xs text-gray-500 mb-1">Sections:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {bundle.sections && bundle.sections.length > 0 ? (
+                          bundle.sections.slice(0, 2).map((section) => (
+                            <Badge key={section.id} variant="outline" className="text-xs">
+                              {section.name}
+                            </Badge>
+                          ))
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            No sections
+                          </Badge>
+                        )}
+                        {bundle.sections && bundle.sections.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{bundle.sections.length - 2}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
 

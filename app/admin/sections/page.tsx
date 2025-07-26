@@ -8,23 +8,54 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Plus, 
+  Edit, 
+  Trash2, 
+  ChevronRight, 
+  ChevronDown, 
+  GripVertical,
+  Eye,
+  EyeOff,
+  Home,
+  Navigation,
+  Folder,
+  FolderOpen
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Section {
   id: string;
   name: string;
+  slug: string;
   description?: string;
+  parentId?: string;
+  parentName?: string;
+  level: number;
+  displayOrder: number;
+  showInNavbar: boolean;
+  showInHomepage: boolean;
   isActive: boolean;
+  children?: Section[];
 }
 
 export default function AdminSections() {
   const [sections, setSections] = useState<Section[]>([]);
+  const [flatSections, setFlatSections] = useState<Section[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<Section | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState('tree');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    parentId: '',
+    displayOrder: 0,
+    showInNavbar: false,
+    showInHomepage: false,
     isActive: true,
   });
 
@@ -34,11 +65,19 @@ export default function AdminSections() {
 
   const fetchSections = async () => {
     try {
-      const response = await fetch('/api/sections');
-      const data = await response.json();
-      setSections(data);
+      const [hierarchyResponse, flatResponse] = await Promise.all([
+        fetch('/api/sections?type=hierarchy'),
+        fetch('/api/sections?type=flat')
+      ]);
+      
+      const hierarchyData = await hierarchyResponse.json();
+      const flatData = await flatResponse.json();
+      
+      setSections(hierarchyData);
+      setFlatSections(flatData);
     } catch (error) {
       console.error('Error fetching sections:', error);
+      toast.error('Failed to fetch sections');
     }
   };
 
@@ -49,11 +88,19 @@ export default function AdminSections() {
       const url = editingSection ? `/api/sections/${editingSection.id}` : '/api/sections';
       const method = editingSection ? 'PUT' : 'POST';
 
+      const submitData = {
+        ...formData,
+        parentId: formData.parentId || null,
+        displayOrder: Number(formData.displayOrder),
+      };
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       });
+
+      const result = await response.json();
 
       if (response.ok) {
         toast.success(editingSection ? 'Section updated' : 'Section created');
@@ -61,7 +108,7 @@ export default function AdminSections() {
         resetForm();
         fetchSections();
       } else {
-        toast.error('Failed to save section');
+        toast.error(result.error || 'Failed to save section');
       }
     } catch (error) {
       toast.error('Something went wrong');
@@ -73,6 +120,10 @@ export default function AdminSections() {
     setFormData({
       name: section.name,
       description: section.description || '',
+      parentId: section.parentId || '',
+      displayOrder: section.displayOrder,
+      showInNavbar: section.showInNavbar,
+      showInHomepage: section.showInHomepage,
       isActive: section.isActive,
     });
     setIsModalOpen(true);
@@ -86,24 +137,139 @@ export default function AdminSections() {
         method: 'DELETE',
       });
 
+      const result = await response.json();
+
       if (response.ok) {
         toast.success('Section deleted');
         fetchSections();
       } else {
-        toast.error('Failed to delete section');
+        toast.error(result.error || 'Failed to delete section');
       }
     } catch (error) {
       toast.error('Something went wrong');
     }
   };
 
+  const toggleExpanded = (sectionId: string) => {
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(sectionId)) {
+      newExpanded.delete(sectionId);
+    } else {
+      newExpanded.add(sectionId);
+    }
+    setExpandedSections(newExpanded);
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
       description: '',
+      parentId: '',
+      displayOrder: 0,
+      showInNavbar: false,
+      showInHomepage: false,
       isActive: true,
     });
     setEditingSection(null);
+  };
+
+  const renderSectionTree = (sections: Section[], level = 0) => {
+    return sections.map((section) => (
+      <div key={section.id} className={`ml-${level * 4}`}>
+        <Card className="mb-2">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                {section.children && section.children.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleExpanded(section.id)}
+                    className="p-1 h-6 w-6"
+                  >
+                    {expandedSections.has(section.id) ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </Button>
+                )}
+                
+                {level === 0 ? (
+                  <Folder className="h-4 w-4 text-blue-600" />
+                ) : level === 1 ? (
+                  <FolderOpen className="h-4 w-4 text-green-600" />
+                ) : (
+                  <div className="h-4 w-4 rounded bg-purple-600" />
+                )}
+                
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">{section.name}</span>
+                    <Badge variant="outline" className="text-xs">
+                      Level {section.level}
+                    </Badge>
+                    {section.showInNavbar && (
+                      <Badge variant="secondary" className="text-xs">
+                        <Navigation className="h-3 w-3 mr-1" />
+                        Nav
+                      </Badge>
+                    )}
+                    {section.showInHomepage && (
+                      <Badge variant="secondary" className="text-xs">
+                        <Home className="h-3 w-3 mr-1" />
+                        Home
+                      </Badge>
+                    )}
+                    {!section.isActive && (
+                      <Badge variant="destructive" className="text-xs">
+                        Inactive
+                      </Badge>
+                    )}
+                  </div>
+                  {section.description && (
+                    <p className="text-sm text-gray-600 mt-1">{section.description}</p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEdit(section)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(section.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {section.children && 
+         section.children.length > 0 && 
+         expandedSections.has(section.id) && (
+          <div className="ml-6 border-l-2 border-gray-200 pl-4">
+            {renderSectionTree(section.children, level + 1)}
+          </div>
+        )}
+      </div>
+    ));
+  };
+
+  const getParentOptions = () => {
+    return flatSections.filter(section => 
+      section.level < 2 && 
+      section.id !== editingSection?.id &&
+      section.isActive
+    );
   };
 
   return (
@@ -118,7 +284,7 @@ export default function AdminSections() {
                 Add Section
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle>
                   {editingSection ? 'Edit Section' : 'Add New Section'}
@@ -145,13 +311,64 @@ export default function AdminSections() {
                   />
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="active"
-                    checked={formData.isActive}
-                    onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                <div>
+                  <Label htmlFor="parent">Parent Section</Label>
+                  <Select
+                    value={formData.parentId}
+                    onValueChange={(value) => setFormData({ ...formData, parentId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select parent (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No Parent (Main Category)</SelectItem>
+                      {getParentOptions().map((section) => (
+                        <SelectItem key={section.id} value={section.id}>
+                          {'  '.repeat(section.level)}
+                          {section.name} (Level {section.level})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="displayOrder">Display Order</Label>
+                  <Input
+                    id="displayOrder"
+                    type="number"
+                    value={formData.displayOrder}
+                    onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
                   />
-                  <Label htmlFor="active">Active</Label>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="navbar"
+                      checked={formData.showInNavbar}
+                      onCheckedChange={(checked) => setFormData({ ...formData, showInNavbar: checked })}
+                    />
+                    <Label htmlFor="navbar">Show in Navigation</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="homepage"
+                      checked={formData.showInHomepage}
+                      onCheckedChange={(checked) => setFormData({ ...formData, showInHomepage: checked })}
+                    />
+                    <Label htmlFor="homepage">Show on Homepage</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="active"
+                      checked={formData.isActive}
+                      onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                    />
+                    <Label htmlFor="active">Active</Label>
+                  </div>
                 </div>
 
                 <Button type="submit" className="w-full">
@@ -162,50 +379,90 @@ export default function AdminSections() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.map((section) => (
-            <Card key={section.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  {section.name}
-                  {!section.isActive && (
-                    <span className="text-sm bg-red-100 text-red-800 px-2 py-1 rounded">
-                      Inactive
-                    </span>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">{section.description}</p>
-                
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(section)}
-                    className="flex-1"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(section.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {sections.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No sections found. Create your first section!</p>
-          </div>
-        )}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="tree">Tree View</TabsTrigger>
+            <TabsTrigger value="list">List View</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="tree" className="mt-6">
+            {sections.length > 0 ? (
+              <div className="space-y-4">
+                {renderSectionTree(sections)}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No sections found. Create your first section!</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="list" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {flatSections.map((section) => (
+                <Card key={section.id}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span>{section.name}</span>
+                        <Badge variant="outline" className="text-xs">
+                          L{section.level}
+                        </Badge>
+                      </div>
+                      {!section.isActive && (
+                        <Badge variant="destructive" className="text-xs">
+                          Inactive
+                        </Badge>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {section.parentName && (
+                      <p className="text-sm text-gray-500 mb-2">
+                        Parent: {section.parentName}
+                      </p>
+                    )}
+                    <p className="text-gray-600 mb-4">{section.description}</p>
+                    
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {section.showInNavbar && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Navigation className="h-3 w-3 mr-1" />
+                          Navigation
+                        </Badge>
+                      )}
+                      {section.showInHomepage && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Home className="h-3 w-3 mr-1" />
+                          Homepage
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(section)}
+                        className="flex-1"
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(section.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

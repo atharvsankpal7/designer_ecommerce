@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/home/hero-section';
 import { ProductSlider } from '@/components/home/product-slider';
 import { BundleSection } from '@/components/home/bundle-section';
 import { WhatsNew } from '@/components/home/whats-new';
+import { HomepageSections } from '@/components/home/homepage-sections';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Metadata } from 'next';
@@ -29,6 +30,7 @@ export default function Home() {
         <HeroSlider />
         <HeroSection />
         <ProductSlider />
+        <HomepageSections />
         <BundleSection />
         <WhatsNew />
       </main>

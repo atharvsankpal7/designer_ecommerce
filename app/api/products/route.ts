@@ -17,22 +17,23 @@ export async function GET(request: NextRequest) {
     const query: any = { isActive: true };
 
     if (section && section !== 'all') {
-  try {
+      try {
         // First try to find the section by name
         const sectionDoc = await Section.findOne({ 
           name: { $regex: new RegExp(section, 'i') } 
         });
         
         if (sectionDoc) {
-          query.sectionId = sectionDoc._id;
+          query.sectionIds = sectionDoc._id;
         } else if (mongoose.Types.ObjectId.isValid(section)) {
           // If not found by name but is a valid ObjectId, use it directly
-          query.sectionId = section;
+          query.sectionIds = section;
         }
-  } catch (error) {
+      } catch (error) {
         console.error('Error finding section:', error);
-  }
-}
+      }
+    }
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       query.isFeatured = true;
     }
 
-    let productQuery = Product.find(query).populate('sectionId', 'name');
+    let productQuery = Product.find(query).populate('sectionIds', 'name slug');
 
     if (newProducts === 'true') {
       productQuery = productQuery.sort({ createdAt: -1 });
@@ -68,10 +69,13 @@ export async function GET(request: NextRequest) {
       displayImage: product.displayImage,
       productFiles: product.productFiles,
       isFeatured: product.isFeatured,
+      isActive: product.isActive,
       createdAt: product.createdAt,
-      section: {
-        name: product.sectionId?.name || 'Unknown',
-      },
+      sections: product.sectionIds?.map((section: any) => ({
+        id: section._id.toString(),
+        name: section.name,
+        slug: section.slug,
+      })) || [],
     }));
 
     return NextResponse.json(transformedProducts);
@@ -86,6 +90,22 @@ export async function POST(request: NextRequest) {
     await connectDB();
     
     const data = await request.json();
+    
+    // Validate that sectionIds is provided and is an array
+    if (!data.sectionIds || !Array.isArray(data.sectionIds) || data.sectionIds.length === 0) {
+      return NextResponse.json({ error: 'At least one section must be selected' }, { status: 400 });
+    }
+
+    // Validate that all section IDs exist
+    const validSections = await Section.find({ 
+      _id: { $in: data.sectionIds },
+      isActive: true 
+    });
+
+    if (validSections.length !== data.sectionIds.length) {
+      return NextResponse.json({ error: 'One or more selected sections are invalid' }, { status: 400 });
+    }
+
     const product = new Product(data);
     await product.save();
 

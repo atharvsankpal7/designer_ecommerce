@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
 
     let bundleQuery = Bundle.find(query)
       .populate('products', 'title displayImage originalPrice discountPrice')
+      .populate('sectionIds', 'name slug')
       .sort({ createdAt: -1 });
 
     if (limit) {
@@ -50,6 +51,11 @@ export async function GET(request: NextRequest) {
         originalPrice: product.originalPrice,
         discountPrice: product.discountPrice,
       })),
+      sections: bundle.sectionIds?.map((section: any) => ({
+        id: section._id.toString(),
+        name: section.name,
+        slug: section.slug,
+      })) || [],
     }));
 
     return NextResponse.json(transformedBundles);
@@ -70,6 +76,30 @@ export async function POST(request: NextRequest) {
     await connectDB();
     
     const data = await request.json();
+    
+    // Validate that products array is provided and not empty
+    if (!data.products || !Array.isArray(data.products) || data.products.length === 0) {
+      return NextResponse.json({ error: 'At least one product must be selected' }, { status: 400 });
+    }
+
+    // Validate that sectionIds is provided and is an array (can be empty for bundles)
+    if (data.sectionIds && !Array.isArray(data.sectionIds)) {
+      return NextResponse.json({ error: 'Section IDs must be an array' }, { status: 400 });
+    }
+
+    // Validate that all section IDs exist if sectionIds is provided and not empty
+    if (data.sectionIds && data.sectionIds.length > 0) {
+      const { Section } = await import('@/lib/models');
+      const validSections = await Section.find({ 
+        _id: { $in: data.sectionIds },
+        isActive: true 
+      });
+
+      if (validSections.length !== data.sectionIds.length) {
+        return NextResponse.json({ error: 'One or more selected sections are invalid' }, { status: 400 });
+      }
+    }
+
     const bundle = new Bundle(data);
     await bundle.save();
 

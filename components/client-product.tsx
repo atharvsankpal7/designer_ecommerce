@@ -218,7 +218,7 @@ export default function Products() {
                       />
                       
                       <Badge className="absolute top-2 left-2 bg-primary">
-                        {product.section.name}
+                        {product?.section?.name}
                       </Badge>
 
                       {product.discountPrice && (
