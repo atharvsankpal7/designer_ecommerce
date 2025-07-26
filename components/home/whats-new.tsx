@@ -6,6 +6,7 @@ import { Clock, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import connectDB from '@/lib/mongodb';
 import { Product } from '@/lib/models';
+import { getNewProducts } from "@/lib/actions";
 
 interface ProductType {
   id: string;
@@ -16,33 +17,7 @@ interface ProductType {
   createdAt: string;
 }
 
-async function getNewProducts(): Promise<ProductType[]> {
-  try {
-    await connectDB();
-    
-    const products = await Product.find({
-      isActive: true,
-      // You can add a field like isNew: true or filter by recent createdAt
-      // isNew: true
-    })
-      .sort({ createdAt: -1 })
-      .limit(3);
 
-    const transformedProducts = products.map(product => ({
-      id: product._id.toString(),
-      title: product.title,
-      displayImage: product.displayImage,
-      originalPrice: product.originalPrice,
-      discountPrice: product.discountPrice,
-      createdAt: product.createdAt.toISOString(),
-    }));
-
-    return transformedProducts;
-  } catch (error : any) {
-    console.error("Error fetching new products:", error);
-    return [];
-  }
-}
 
 export async function WhatsNew() {
   const products = await getNewProducts();

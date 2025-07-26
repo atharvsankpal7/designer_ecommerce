@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,7 @@ import { Package, Gift, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import connectDB from '@/lib/mongodb';
 import { Bundle } from '@/lib/models';
+import { useEffect, useState } from "react";
 
 interface Bundle {
   id: string;
@@ -23,44 +25,33 @@ interface Bundle {
   }[];
 }
 
-async function getFeaturedBundles(): Promise<Bundle[]> {
-  try {
-    await connectDB();
+
+
+export function BundleSection() {
+
+  
+  const [bundles, setBundles] = useState<Bundle[]>([])
+  
+  useEffect(() => {
+    async function getFeaturedBundles(): Promise<Bundle[]> {
+      try {
+        const response = await fetch('/api/bundles?featured=true');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const bundles = await response.json();
+        setBundles(bundles)
+        return bundles;
+      } catch (error: any) {
+        console.error("Error fetching featured bundles:", error);
+        return [];
+      }
+    }
     
-    const bundles = await Bundle.find({
-      isActive: true,
-      isFeatured: true
-    })
-      .populate('products', 'title displayImage originalPrice discountPrice ')
-      .sort({ createdAt: -1 })
-      .limit(4)
-      // .lean();
+    getFeaturedBundles();
+  }, [])
 
-    const transformedBundles = bundles.map(bundle => ({
-      id: bundle._id.toString(),
-      name: bundle.name,
-      description: bundle.description,
-      originalPrice: bundle.originalPrice,
-      discountPrice: bundle.discountPrice,
-      displayImage: bundle.displayImage,
-      products: bundle.products.map((product: any) => ({
-        id: product._id.toString(),
-        title: product.title,
-        displayImage: product.displayImage,
-        originalPrice: product.originalPrice,
-        discountPrice: product.discountPrice,
-      })),
-    }));
-
-    return transformedBundles;
-  } catch (error : any) {
-    console.error("Error fetching featured bundles:", error);
-    return [];
-  }
-}
-
-export async function BundleSection() {
-  const bundles = await getFeaturedBundles();
   if (bundles.length === 0) return null;
 
   return (
