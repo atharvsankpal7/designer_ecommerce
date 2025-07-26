@@ -1,57 +1,13 @@
-"use client";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Package, Gift, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import connectDB from '@/lib/mongodb';
-import { Bundle } from '@/lib/models';
-import { useEffect, useState } from "react";
+import { getFeaturedBundles } from "@/lib/actions";
 
-interface Bundle {
-  id: string;
-  name: string;
-  description: string;
-  displayImage: string;
-  originalPrice: number;
-  discountPrice?: number;
-  products: {
-    id: string;
-    title: string;
-    displayImage?: string;
-    originalPrice?: number;
-    discountPrice?: number;
-  }[];
-}
-
-
-
-export function BundleSection() {
-
-  
-  const [bundles, setBundles] = useState<Bundle[]>([])
-  
-  useEffect(() => {
-    async function getFeaturedBundles(): Promise<Bundle[]> {
-      try {
-        const response = await fetch('/api/bundles?featured=true');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const bundles = await response.json();
-        setBundles(bundles)
-        return bundles;
-      } catch (error: any) {
-        console.error("Error fetching featured bundles:", error);
-        return [];
-      }
-    }
-    
-    getFeaturedBundles();
-  }, [])
-
+export async function BundleSection() {
+  const bundles = await getFeaturedBundles();
   if (bundles.length === 0) return null;
 
   return (
