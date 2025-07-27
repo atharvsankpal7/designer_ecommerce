@@ -27,7 +27,7 @@ export async function getAllHeroSlidesAdmin() {
       .lean();
 
     return slides.map(slide => ({
-      id: slide._id.toString(),
+      id: slide.id.toString(),
       title: slide.title,
       description: slide.description,
       imageUrl: slide.imageUrl,
@@ -67,7 +67,7 @@ export async function createHeroSlide(data: CreateHeroSlideData) {
     await revalidateHeroSlideCaches();
     
     return {
-      id: savedSlide._id.toString(),
+      id: savedSlide.id.toString(),
       title: savedSlide.title,
       description: savedSlide.description,
       imageUrl: savedSlide.imageUrl,
@@ -96,7 +96,8 @@ export async function updateHeroSlide(data: UpdateHeroSlideData) {
       id,
       updateData,
       { new: true, runValidators: true }
-    ).lean();
+    // ).lean();
+    )
 
     if (!updatedSlide) {
       throw new Error('Hero slide not found');
@@ -106,7 +107,7 @@ export async function updateHeroSlide(data: UpdateHeroSlideData) {
     await revalidateHeroSlideCaches();
     
     return {
-      id: updatedSlide._id.toString(),
+      id: updatedSlide.id.toString(),
       title: updatedSlide.title,
       description: updatedSlide.description,
       imageUrl: updatedSlide.imageUrl,
@@ -162,7 +163,7 @@ export async function toggleHeroSlideStatus(id: string) {
     await revalidateHeroSlideCaches();
     
     return {
-      id: slide._id.toString(),
+      id: slide.id.toString(),
       isActive: slide.isActive,
     };
   } catch (error) {

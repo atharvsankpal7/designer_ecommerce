@@ -25,7 +25,7 @@ export async function buildSectionHierarchy(activeOnly = false): Promise<Section
   // Convert to hierarchy format and create map
   sections.forEach(section => {
     const hierarchySection: SectionHierarchy = {
-      id: section._id.toString(),
+      id: section.id.toString(),
       name: section.name,
       slug: section.slug,
       level: section.level,
@@ -36,7 +36,7 @@ export async function buildSectionHierarchy(activeOnly = false): Promise<Section
       children: []
     };
     
-    sectionMap.set(section._id.toString(), hierarchySection);
+    sectionMap.set(section.id.toString(), hierarchySection);
     
     if (section.level === 0) {
       rootSections.push(hierarchySection);
@@ -47,7 +47,7 @@ export async function buildSectionHierarchy(activeOnly = false): Promise<Section
   sections.forEach(section => {
     if (section.parentId) {
       const parent = sectionMap.get(section.parentId.toString());
-      const child = sectionMap.get(section._id.toString());
+      const child = sectionMap.get(section.id.toString());
       
       if (parent && child) {
         parent.children!.push(child);
@@ -72,13 +72,13 @@ export const getNavigationSections =
     // First pass: collect all sections marked for navbar
     allSections.forEach(section => {
       if (section.showInNavbar) {
-        navbarSectionIds.add(section._id.toString());
+        navbarSectionIds.add(section.id.toString());
       }
     });
     
     // Second pass: include parent sections if their children are in navbar
     const addParentSections = (sectionId: string) => {
-      const section = allSections.find(s => s._id.toString() === sectionId);
+      const section = allSections.find(s => s.id.toString() === sectionId);
       if (section && section.parentId) {
         const parentId = section.parentId.toString();
         if (!navbarSectionIds.has(parentId)) {
@@ -98,9 +98,9 @@ export const getNavigationSections =
     const rootSections: SectionHierarchy[] = [];
     
     allSections.forEach(section => {
-      if (navbarSectionIds.has(section._id.toString())) {
+      if (navbarSectionIds.has(section.id.toString())) {
         const hierarchySection: SectionHierarchy = {
-          id: section._id.toString(),
+          id: section.id.toString(),
           name: section.name,
           slug: section.slug,
           level: section.level,
@@ -111,7 +111,7 @@ export const getNavigationSections =
           children: []
         };
         
-        sectionMap.set(section._id.toString(), hierarchySection);
+        sectionMap.set(section.id.toString(), hierarchySection);
         
         if (section.level === 0) {
           rootSections.push(hierarchySection);
@@ -121,9 +121,9 @@ export const getNavigationSections =
     
     // Build parent-child relationships
     allSections.forEach(section => {
-      if (navbarSectionIds.has(section._id.toString()) && section.parentId) {
+      if (navbarSectionIds.has(section.id.toString()) && section.parentId) {
         const parent = sectionMap.get(section.parentId.toString());
-        const child = sectionMap.get(section._id.toString());
+        const child = sectionMap.get(section.id.toString());
         
         if (parent && child) {
           parent.children!.push(child);
@@ -145,7 +145,7 @@ export const getHomepageSections =
     }).sort({ displayOrder: 1 });
     
     return sections.map(section => ({
-      id: section._id.toString(),
+      id: section.id.toString(),
       name: section.name,
       slug: section.slug,
       level: section.level,
@@ -168,7 +168,7 @@ export async function getSectionBreadcrumb(sectionId: string): Promise<SectionHi
     if (!section) break;
     
     breadcrumb.unshift({
-      id: section._id.toString(),
+      id: section.id.toString(),
       name: section.name,
       slug: section.slug,
       level: section.level,
@@ -211,7 +211,7 @@ export async function getSectionBySlugPath(slugPath: string): Promise<SectionHie
   if (!section) return null;
   
   return {
-    id: section._id.toString(),
+    id: section.id.toString(),
     name: section.name,
     slug: section.slug,
     level: section.level,

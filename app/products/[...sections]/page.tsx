@@ -70,7 +70,7 @@ async function getSectionProducts(sectionId: string, page = 1, sort = 'newest', 
   ]);
   
   const transformedProducts = products.map((product) => ({
-    id: product._id.toString(),
+    id: product.id.toString(),
     title: product.title,
     description: product.description,
     displayImage: product.displayImage,
@@ -78,7 +78,7 @@ async function getSectionProducts(sectionId: string, page = 1, sort = 'newest', 
     discountPrice: product.discountPrice,
     isFeatured: product.isFeatured,
     sections: product.sectionIds.map((section: any) => ({
-      id: section._id.toString(),
+      id: section.id.toString(),
       name: section.name,
       slug: section.slug,
     })),

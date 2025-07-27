@@ -29,7 +29,7 @@ export const getNewProducts =
        
 
       const transformedProducts = products.map((product) => ({
-        id: product._id.toString(),
+        id: product.id.toString(),
         title: product.title,
         displayImage: product.displayImage,
         originalPrice: product.originalPrice,
@@ -80,7 +80,7 @@ export async function getFeaturedProducts(): Promise<ProductType[]> {
         .limit(8)
   
       const transformedProducts = products.map((product) => ({
-        id: product._id.toString(),
+        id: product.id.toString(),
         title: product.title,
         displayImage: product.displayImage,
         originalPrice: product.originalPrice,
@@ -126,14 +126,14 @@ export async function getFeaturedProducts(): Promise<ProductType[]> {
         // .lean();
   
       const transformedBundles = bundles.map(bundle => ({
-        id: bundle._id.toString(),
+        id: bundle.id.toString(),
         name: bundle.name,
         description: bundle.description,
         originalPrice: bundle.originalPrice,
         discountPrice: bundle.discountPrice,
         displayImage: bundle.displayImage,
         products: bundle.products.map((product: any) => ({
-          id: product._id.toString(),
+          id: product.id.toString(),
           title: product.title,
           displayImage: product.displayImage,
           originalPrice: product.originalPrice,
@@ -208,7 +208,7 @@ export async function getFeaturedProducts(): Promise<ProductType[]> {
     ]);
     
     const transformedProducts = products.map((product) => ({
-      id: product._id.toString(),
+      id: product.id.toString(),
       title: product.title,
       description: product.description,
       displayImage: product.displayImage,
@@ -216,7 +216,7 @@ export async function getFeaturedProducts(): Promise<ProductType[]> {
       discountPrice: product.discountPrice,
       isFeatured: product.isFeatured,
       sections: product.sectionIds.map((section: any) => ({
-        id: section._id.toString(),
+        id: section.id.toString(),
         name: section.name,
         slug: section.slug,
       })),
@@ -243,7 +243,7 @@ export async function getSectionProducts(sectionId: string): Promise<ProductType
       .limit(8)
 
     const transformedProducts = products.map((product) => ({
-      id: product._id.toString(),
+      id: product.id.toString(),
       title: product.title,
       displayImage: product.displayImage,
       originalPrice: product.originalPrice,
@@ -285,7 +285,7 @@ export const getHeroSlides =
         console.log(slides)
 
       const transformedSlides = slides.map((slide) => ({
-        id: slide._id.toString(),
+        id: slide.id.toString(),
         title: slide.title,
         description: slide.description,
         imageUrl: slide.imageUrl,
@@ -308,7 +308,7 @@ export async function getHeroSlideById(slideId: string): Promise<HeroSlideType |
   try {
     await connectDB();
     const slide = await HeroSlide.findById(slideId).lean();
-    if (!slide) return null;
+    if (!slide || Array.isArray(slide)) return null;
     console.log(slide)
     return {
       id: slide.id.toString(),
