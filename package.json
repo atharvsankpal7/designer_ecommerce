@@ -9,9 +9,11 @@
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
     "migrate-sections": "tsx scripts/migrate-sections.ts",
-    "seed-hero-slides": "tsx scripts/seed-hero-slides.ts"
+    "seed-hero-slides": "tsx scripts/seed-hero-slides.ts",
+    "seed-contact-data": "tsx scripts/seed-contact-data.ts"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^3.9.0",
     "@next/swc-wasm-nodejs": "13.5.1",
     "@radix-ui/react-accordion": "^1.2.0",

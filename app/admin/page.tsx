@@ -185,6 +185,15 @@ export default function AdminDashboard() {
               <QuickActionButton href="/admin/hero-slides" icon={Activity}>
                 Manage Hero Slides
               </QuickActionButton>
+              <QuickActionButton href="/admin/contact-settings" icon={Settings}>
+                Contact Settings
+              </QuickActionButton>
+              <QuickActionButton href="/admin/social-media" icon={Users}>
+                Social Media
+              </QuickActionButton>
+              <QuickActionButton href="/admin/footer-links" icon={PlusCircle}>
+                Footer Links
+              </QuickActionButton>
               
             </CardContent>
           </Card>

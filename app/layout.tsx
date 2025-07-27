@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Providers } from '@/components/providers';
 import { SSRHeader } from '@/components/layout/ssr-header';
-import { Footer } from '@/components/layout/footer';
+import { DynamicFooter } from '@/components/layout/dynamic-footer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -135,7 +135,7 @@ export default function RootLayout({
         <Providers>
           <SSRHeader />
           {children}
-          <Footer />
+          <DynamicFooter />
         </Providers>
         <Toaster position="top-right" />
       </body>

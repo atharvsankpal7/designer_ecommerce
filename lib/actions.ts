@@ -2,7 +2,6 @@
 
 import connectDB from '@/lib/mongodb';
 import { Bundle, Product, Section, HeroSlide } from '@/lib/models'; 
-import { unstable_cache } from 'next/cache';
 export const dynamic = 'force-dynamic';
 
 
@@ -241,7 +240,6 @@ export async function getSectionProducts(sectionId: string): Promise<ProductType
     })
       .sort({ createdAt: -1 })
       .limit(8)
-
     const transformedProducts = products.map((product) => ({
       id: product.id.toString(),
       title: product.title,
@@ -282,8 +280,7 @@ export const getHeroSlides =
       })
         .sort({ displayOrder: 1, createdAt: -1 })
         .lean();
-        console.log(slides)
-
+        
       const transformedSlides = slides.map((slide) => ({
         id: slide.id.toString(),
         title: slide.title,
@@ -295,7 +292,7 @@ export const getHeroSlides =
         linkText: slide.linkText,
         isActive: slide.isActive,
       }));
-
+      console.log(transformedSlides)
       return transformedSlides;
     } catch (error: any) {
       console.error('Error fetching hero slides:', error);
@@ -309,7 +306,6 @@ export async function getHeroSlideById(slideId: string): Promise<HeroSlideType |
     await connectDB();
     const slide = await HeroSlide.findById(slideId).lean();
     if (!slide || Array.isArray(slide)) return null;
-    console.log(slide)
     return {
       id: slide.id.toString(),
       title: slide.title,

@@ -19,7 +19,6 @@ export async function revalidateSectionCaches(): Promise<boolean> {
     }
 
     const result = await response.json();
-    console.log('Section caches revalidated:', result);
     return true;
   } catch (error) {
     console.error('Error calling revalidation API:', error);
@@ -46,7 +45,6 @@ export async function revalidateProductCaches(): Promise<boolean> {
     }
 
     const result = await response.json();
-    console.log('Product caches revalidated:', result);
     return true;
   } catch (error) {
     console.error('Error calling product revalidation API:', error);
@@ -73,7 +71,6 @@ export async function revalidateHeroSlideCaches(): Promise<boolean> {
     }
 
     const result = await response.json();
-    console.log('Hero slide caches revalidated:', result);
     return true;
   } catch (error) {
     console.error('Error calling hero slide revalidation API:', error);
