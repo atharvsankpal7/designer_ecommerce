@@ -20,7 +20,6 @@ export async function GET(
         { status: 400 }
       );
     }
-
     // Validate ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -32,7 +31,6 @@ export async function GET(
     const product = await Product.findById(id)
       .populate('sectionIds', 'name slug')
       .exec();
-
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }

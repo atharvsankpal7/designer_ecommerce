@@ -9,9 +9,11 @@ export const dynamic = 'force-dynamic';
 interface ProductType {
   id: string;
   title: string;
+  description: string;
   displayImage: string;
   originalPrice: number;
   discountPrice?: number;
+  isFeatured: boolean;
   createdAt: string;
 }
 
@@ -24,15 +26,17 @@ export const getNewProducts =
         isActive: true,
       })
         .sort({ createdAt: -1 })
-        .limit(3)
+        .limit(4)
        
 
       const transformedProducts = products.map((product) => ({
         id: product._id.toString(),
         title: product.title,
+        description: product.description,
         displayImage: product.displayImage,
         originalPrice: product.originalPrice,
         discountPrice: product.discountPrice,
+        isFeatured: product.isFeatured,
         createdAt: product.createdAt.toISOString(),
       }));
 
@@ -57,9 +61,11 @@ export const getProductById = async (
     return {
       id: product._id.toString(),
       title: product.title,
+      description: product.description,
       displayImage: product.displayImage,
       originalPrice: product.originalPrice,
       discountPrice: product.discountPrice,
+      isFeatured: product.isFeatured,
       createdAt: product.createdAt.toISOString(),
     };
   } catch (error: any) {
@@ -81,9 +87,11 @@ export async function getFeaturedProducts(): Promise<ProductType[]> {
       const transformedProducts = products.map((product) => ({
         id: product._id.toString(),
         title: product.title,
+        description: product.description,
         displayImage: product.displayImage,
         originalPrice: product.originalPrice,
         discountPrice: product.discountPrice,
+        isFeatured: product.isFeatured,
         createdAt: product.createdAt.toISOString(),
       }))
   
@@ -243,9 +251,11 @@ export async function getSectionProducts(sectionId: string): Promise<ProductType
     const transformedProducts = products.map((product: any) => ({
       id: product._id.toString(),
       title: product.title,
+      description: product.description,
       displayImage: product.displayImage,
       originalPrice: product.originalPrice,
       discountPrice: product.discountPrice,
+      isFeatured: product.isFeatured,
       createdAt: product.createdAt.toISOString(),
     }))
 
@@ -292,7 +302,6 @@ export const getHeroSlides =
         linkText: slide.linkText,
         isActive: slide.isActive,
       }));
-      console.log(transformedSlides)
       return transformedSlides;
     } catch (error: any) {
       console.error('Error fetching hero slides:', error);

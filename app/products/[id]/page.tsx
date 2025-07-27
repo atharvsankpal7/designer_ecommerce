@@ -1,10 +1,9 @@
 import { notFound } from 'next/navigation';
-import { SSRHeader } from '@/components/layout/ssr-header';
-import { Footer } from '@/components/layout/footer';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 import Image from 'next/image';
 import { ProductDetailClient } from '@/components/products/product-detail-client';
+import { getProductById } from '@/lib/actions';
 
 interface Product {
   id: string;
@@ -14,6 +13,7 @@ interface Product {
   originalPrice: number;
   discountPrice?: number;
   isFeatured: boolean;
+  createdAt: string;
 }
 
 interface ProductDetailProps {
@@ -25,16 +25,7 @@ interface ProductDetailProps {
 // Server-side function to fetch product data
 async function getProduct(id: string): Promise<Product | null> {
   try {
-    // Replace with your actual API base URL or direct database call
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/products/${id}`, {
-      cache: 'no-store', // or 'force-cache' depending on your needs
-    });
-    
-    if (!response.ok) {
-      return null;
-    }
-    
-    return await response.json();
+    return await getProductById(id);
   } catch (error) {
     console.error('Error fetching product:', error);
     return null;
