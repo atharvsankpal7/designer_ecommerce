@@ -2,6 +2,7 @@ import connectDB from './mongodb';
 import Section from '@/models/Section';
 import { ISection } from '@/models/Section';
 import { SectionHierarchy, SectionWithChildren } from '@/types/section';
+export const dynamic = 'force-dynamic'  
 
 // Generate slug from name
 export function generateSlug(name: string): string {
