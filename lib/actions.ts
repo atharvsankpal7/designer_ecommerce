@@ -240,8 +240,8 @@ export async function getSectionProducts(sectionId: string): Promise<ProductType
     })
       .sort({ createdAt: -1 })
       .limit(8)
-    const transformedProducts = products.map((product) => ({
-      id: product.__id.toString(),
+    const transformedProducts = products.map((product: any) => ({
+      id: product._id.toString(),
       title: product.title,
       displayImage: product.displayImage,
       originalPrice: product.originalPrice,
@@ -304,18 +304,20 @@ export const getHeroSlides =
 export async function getHeroSlideById(slideId: string): Promise<HeroSlideType | null> {
   try {
     await connectDB();
-    const slide = await HeroSlide.findById(slideId);
+    const slide = await HeroSlide.findById(slideId).lean();
     if (!slide || Array.isArray(slide)) return null;
+    
+    const typedSlide = slide as any;
     return {
-      id: slide._id.toString(),
-      title: slide.title,
-      description: slide.description,
-      imageUrl: slide.imageUrl,
-      altText: slide.altText,
-      displayOrder: slide.displayOrder,
-      linkUrl: slide.linkUrl,
-      linkText: slide.linkText,
-      isActive: slide.isActive,
+      id: typedSlide._id.toString(),
+      title: typedSlide.title,
+      description: typedSlide.description,
+      imageUrl: typedSlide.imageUrl,
+      altText: typedSlide.altText,
+      displayOrder: typedSlide.displayOrder,
+      linkUrl: typedSlide.linkUrl,
+      linkText: typedSlide.linkText,
+      isActive: typedSlide.isActive,
     };
   } catch (error: any) {
     console.error(`Error fetching hero slide ${slideId}:`, error);
