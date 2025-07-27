@@ -1,5 +1,6 @@
 import { getHomepageSections } from '@/lib/section-utils';
 import { SectionCarousel } from './section-carousel';
+export const dynamic = 'force-dynamic';
 
 export async function HomepageSections() {
   const homepageSections = await getHomepageSections();

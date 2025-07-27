@@ -1,7 +1,6 @@
-export const dynamic = "force-dynamic";
-
 import { getNavigationSections } from '@/lib/section-utils';
 import { ClientHeader } from './client-header';
+export const dynamic = 'force-dynamic';
 
 export async function SSRHeader() {
   const navigationSections = await getNavigationSections();

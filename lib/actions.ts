@@ -1,8 +1,9 @@
 // lib/actions/product.actions.ts
 
 import connectDB from '@/lib/mongodb';
-import { Bundle, Product, Section } from '@/lib/models'; // Assuming your Product model is exported from here
-import { unstable_cache as unstableCache } from 'next/cache';
+import { Bundle, Product, Section } from '@/lib/models'; 
+export const dynamic = 'force-dynamic';
+
 
 // Define the ProductType interface if it's not already global or in a shared types file
 interface ProductType {
@@ -14,7 +15,7 @@ interface ProductType {
   createdAt: string;
 }
 
-export const getNewProducts = unstableCache(
+export const getNewProducts = 
   async (): Promise<ProductType[]> => {
     try {
       await connectDB();
@@ -41,13 +42,8 @@ export const getNewProducts = unstableCache(
       // Depending on your error handling strategy, you might re-throw or return an empty array
       throw new Error('Failed to fetch new products.');
     }
-  },
-  ['new-products'], // Unique tag for this cache entry
-  {
-    tags: ['products', 'new-products'], // Specific tags for revalidation
-    revalidate: 3600, // Revalidate every hour (or choose appropriate time)
-  },
-);
+  }
+
 
 // You can add other product-related actions here, e.g.:
 export const getProductById = async (

@@ -7,6 +7,7 @@ import { HomepageSections } from '@/components/home/homepage-sections';
 import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
 import { Metadata } from 'next';
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'SSCreation - Premium Graphic Design Templates | Festival Designs & Business Templates',

@@ -6,6 +6,7 @@ import { AllProductsSidebar } from '@/components/products/all-products-sidebar';
 import connectDB from '@/lib/mongodb';
 import { Product, Section } from '@/lib/models';
 import { getAllProducts } from '@/lib/actions';
+export const dynamic = 'force-dynamic';
 
 
 interface ProductsPageProps {

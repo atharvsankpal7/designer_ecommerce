@@ -7,6 +7,7 @@ import { Product } from "@/lib/models"
 import { ModernAutoScrollCarousel } from "@/components/product-slider/AutoScrollCarousel"
 import { SectionHierarchy } from "@/types/section"
 import { getSectionProducts } from "@/lib/actions"
+export const dynamic = 'force-dynamic';
 
 interface ProductType {
   id: string

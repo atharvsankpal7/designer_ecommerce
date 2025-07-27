@@ -15,6 +15,12 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    staleTimes: {
+      dynamic: 0, // Ensure dynamic routes are not cached
+      static: 180, // Cache static content for 3 minutes
+    },
+  },
 };
 
 module.exports = nextConfig;
