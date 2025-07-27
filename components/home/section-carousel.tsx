@@ -6,6 +6,7 @@ import connectDB from "@/lib/mongodb"
 import { Product } from "@/lib/models"
 import { ModernAutoScrollCarousel } from "@/components/product-slider/AutoScrollCarousel"
 import { SectionHierarchy } from "@/types/section"
+import { getSectionProducts } from "@/lib/actions"
 
 interface ProductType {
   id: string
@@ -19,31 +20,6 @@ interface SectionCarouselProps {
   section: SectionHierarchy;
 }
 
-async function getSectionProducts(sectionId: string): Promise<ProductType[]> {
-  try {
-    await connectDB()
-
-    const products = await Product.find({
-      isActive: true,
-      sectionIds: sectionId,
-    })
-      .sort({ createdAt: -1 })
-      .limit(8)
-
-    const transformedProducts = products.map((product) => ({
-      id: product._id.toString(),
-      title: product.title,
-      displayImage: product.displayImage,
-      originalPrice: product.originalPrice,
-      discountPrice: product.discountPrice,
-    }))
-
-    return transformedProducts
-  } catch (error : any) {
-    console.error("Error fetching section products:", error)
-    return []
-  }
-}
 
 export async function SectionCarousel({ section }: SectionCarouselProps) {
   const products = await getSectionProducts(section.id)

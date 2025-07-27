@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Plus, 
   Edit, 
@@ -42,6 +43,78 @@ interface Section {
   children?: Section[];
 }
 
+const TreeViewSkeleton = () => {
+  return (
+    <div className="space-y-4">
+      {[...Array(5)].map((_, index) => (
+        <Card key={index} className="mb-2">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                <Skeleton className="h-6 w-6" />
+                <Skeleton className="h-4 w-4" />
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-12" />
+                  </div>
+                  <Skeleton className="h-4 w-48 mt-1" />
+                </div>
+                  </div>
+              <div className="flex space-x-2">
+                <Skeleton className="h-8 w-8" />
+                <Skeleton className="h-8 w-8" />
+                <Skeleton className="h-8 w-8" />
+                <Skeleton className="h-8 w-8" />
+              </div>
+                  </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+  );
+};
+
+const ListViewSkeleton = () => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[...Array(6)].map((_, index) => (
+        <Card key={index}>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-5 w-8" />
+              </div>
+              <Skeleton className="h-5 w-16" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-4 w-20 mb-2" />
+            <Skeleton className="h-4 w-full mb-4" />
+            
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-5 w-16" />
+            </div>
+            
+            <div className="flex space-x-2 mb-3">
+              <Skeleton className="h-8 flex-1" />
+              <Skeleton className="h-8 flex-1" />
+            </div>
+            
+            <div className="flex space-x-2">
+              <Skeleton className="h-8 flex-1" />
+              <Skeleton className="h-8 w-8" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
 export default function AdminSections() {
   const [sections, setSections] = useState<Section[]>([]);
   const [flatSections, setFlatSections] = useState<Section[]>([]);
@@ -49,6 +122,7 @@ export default function AdminSections() {
   const [editingSection, setEditingSection] = useState<Section | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState('tree');
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -65,6 +139,7 @@ export default function AdminSections() {
 
   const fetchSections = async () => {
     try {
+      setIsLoading(true);
       const [hierarchyResponse, flatResponse] = await Promise.all([
         fetch('/api/sections?type=hierarchy'),
         fetch('/api/sections?type=flat')
@@ -78,8 +153,9 @@ export default function AdminSections() {
     } catch (error : any) {
       console.error('Error fetching sections:', error);
       toast.error('Failed to fetch sections');
-    }
-  };
+    } finally {
+      setIsLoading(false);
+}  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -457,7 +533,9 @@ export default function AdminSections() {
           </TabsList>
           
           <TabsContent value="tree" className="mt-6">
-            {sections.length > 0 ? (
+            {isLoading ? (
+              <TreeViewSkeleton />
+            ) : sections.length > 0 ? (
               <div className="space-y-4">
                 {renderSectionTree(sections)}
               </div>
@@ -469,92 +547,96 @@ export default function AdminSections() {
           </TabsContent>
           
           <TabsContent value="list" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {flatSections.map((section) => (
-                <Card key={section.id}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span>{section.name}</span>
-                        <Badge variant="outline" className="text-xs">
-                          L{section.level}
-                        </Badge>
+            {isLoading ? (
+              <ListViewSkeleton />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {flatSections.map((section) => (
+                  <Card key={section.id}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span>{section.name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            L{section.level}
+                          </Badge>
+                        </div>
+                        {!section.isActive && (
+                          <Badge variant="destructive" className="text-xs">
+                            Inactive
+                          </Badge>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {section.parentName && (
+                        <p className="text-sm text-gray-500 mb-2">
+                          Parent: {section.parentName}
+                        </p>
+                      )}
+                      <p className="text-gray-600 mb-4">{section.description}</p>
+                      
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {section.showInNavbar && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Navigation className="h-3 w-3 mr-1" />
+                            Navigation
+                          </Badge>
+                        )}
+                        {section.showInHomepage && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Home className="h-3 w-3 mr-1" />
+                            Homepage
+                          </Badge>
+                        )}
                       </div>
-                      {!section.isActive && (
-                        <Badge variant="destructive" className="text-xs">
-                          Inactive
-                        </Badge>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {section.parentName && (
-                      <p className="text-sm text-gray-500 mb-2">
-                        Parent: {section.parentName}
-                      </p>
-                    )}
-                    <p className="text-gray-600 mb-4">{section.description}</p>
-                    
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {section.showInNavbar && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Navigation className="h-3 w-3 mr-1" />
-                          Navigation
-                        </Badge>
-                      )}
-                      {section.showInHomepage && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Home className="h-3 w-3 mr-1" />
-                          Homepage
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <div className="flex space-x-2 mb-3">
-                      <Button
-                        variant={section.showInNavbar ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleNavbarToggle(section.id, section.showInNavbar)}
-                        title={section.showInNavbar ? "Remove from navbar (includes children)" : "Add to navbar (includes children)"}
-                        className="flex-1"
-                      >
-                        <Navigation className="h-4 w-4 mr-1" />
-                        Nav
-                      </Button>
-                      <Button
-                        variant={section.showInHomepage ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleHomepageToggle(section.id, section.showInHomepage)}
-                        title={section.showInHomepage ? "Remove from homepage" : "Add to homepage"}
-                        className="flex-1"
-                      >
-                        <Home className="h-4 w-4 mr-1" />
-                        Home
-                      </Button>
-                    </div>
-                    
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(section)}
-                        className="flex-1"
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(section.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                      
+                      <div className="flex space-x-2 mb-3">
+                        <Button
+                          variant={section.showInNavbar ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleNavbarToggle(section.id, section.showInNavbar)}
+                          title={section.showInNavbar ? "Remove from navbar (includes children)" : "Add to navbar (includes children)"}
+                          className="flex-1"
+                        >
+                          <Navigation className="h-4 w-4 mr-1" />
+                          Nav
+                        </Button>
+                        <Button
+                          variant={section.showInHomepage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleHomepageToggle(section.id, section.showInHomepage)}
+                          title={section.showInHomepage ? "Remove from homepage" : "Add to homepage"}
+                          className="flex-1"
+                        >
+                          <Home className="h-4 w-4 mr-1" />
+                          Home
+                        </Button>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(section)}
+                          className="flex-1"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(section.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

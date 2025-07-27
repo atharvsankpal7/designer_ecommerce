@@ -5,6 +5,7 @@ import { ProductGrid } from '@/components/products/product-grid';
 import { AllProductsSidebar } from '@/components/products/all-products-sidebar';
 import connectDB from '@/lib/mongodb';
 import { Product, Section } from '@/lib/models';
+import { getAllProducts } from '@/lib/actions';
 
 
 interface ProductsPageProps {
@@ -16,87 +17,7 @@ interface ProductsPageProps {
   };
 }
 
-async function getAllProducts(page = 1, sort = 'newest', priceRange?: string, sectionName?: string) {
-  await connectDB();
-  
-  const limit = 12;
-  const skip = (page - 1) * limit;
-  
-  let query: any = {
-    isActive: true,
-  };
-  
-  // Apply section filter
-  if (sectionName) {
-    const section = await Section.findOne({ 
-      name: { $regex: new RegExp(sectionName, 'i') },
-      isActive: true 
-    });
-    if (section) {
-      query.sectionIds = section._id;
-    }
-  }
-  
-  // Apply price range filter
-  if (priceRange) {
-    const [min, max] = priceRange.split('-').map(Number);
-    if (max) {
-      query.originalPrice = { $gte: min, $lte: max };
-    } else {
-      query.originalPrice = { $gte: min };
-    }
-  }
-  
-  // Apply sorting
-  let sortQuery: any = {};
-  switch (sort) {
-    case 'price-low':
-      sortQuery = { originalPrice: 1 };
-      break;
-    case 'price-high':
-      sortQuery = { originalPrice: -1 };
-      break;
-    case 'name':
-      sortQuery = { title: 1 };
-      break;
-    case 'featured':
-      sortQuery = { isFeatured: -1, createdAt: -1 };
-      break;
-    default:
-      sortQuery = { createdAt: -1 };
-  }
-  
-  const [products, totalCount] = await Promise.all([
-    Product.find(query)
-      .sort(sortQuery)
-      .skip(skip)
-      .limit(limit)
-      .populate('sectionIds', 'name slug'),
-    Product.countDocuments(query)
-  ]);
-  
-  const transformedProducts = products.map((product) => ({
-    id: product._id.toString(),
-    title: product.title,
-    description: product.description,
-    displayImage: product.displayImage,
-    originalPrice: product.originalPrice,
-    discountPrice: product.discountPrice,
-    isFeatured: product.isFeatured,
-    sections: product.sectionIds.map((section: any) => ({
-      id: section._id.toString(),
-      name: section.name,
-      slug: section.slug,
-    })),
-  }));
-  
-  return {
-    products: transformedProducts,
-    totalCount,
-    totalPages: Math.ceil(totalCount / limit),
-    currentPage: page,
-  };
-}
+
 
 export const metadata: Metadata = {
   title: 'All Products - SSCreation | Premium Graphic Design Templates Collection',

@@ -84,7 +84,6 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <SSRHeader />
         <main className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
@@ -107,7 +106,6 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="min-h-screen">
-        <SSRHeader />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
@@ -171,9 +169,7 @@ export default function ProductDetail() {
           {/* Product Details */}
           <div className="space-y-6">
             <div>
-              <Badge variant="secondary" className="mb-3">
-                {/* {product?.section?.name} */}
-              </Badge>
+              
               <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
               <p className="text-gray-600 text-lg leading-relaxed">
                 {product.description}

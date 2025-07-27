@@ -48,6 +48,37 @@ interface Product {
   sections: ProductSection[];
 }
 
+const ProductSkeleton = () => (
+              <Card className="flex flex-col h-full">
+      <CardContent className="p-4 flex flex-col flex-grow">
+        <div className="relative aspect-square mb-4 group overflow-hidden rounded-lg bg-gray-100">
+          <Skeleton className="w-full h-full" />
+        </div>
+
+        <div className="flex-grow">
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-2/3 mb-2" />
+                    <div className="mb-2">
+          <Skeleton className="h-3 w-16 mb-1" />
+                      <div className="flex flex-wrap gap-1">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-5 w-16" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+        <Skeleton className="h-5 w-1/4" />
+                    </div>
+                  <div className="flex space-x-2 mt-auto">
+        <Skeleton className="h-9 w-1/2" />
+        <Skeleton className="h-9 w-1/4" />
+                  </div>
+                </CardContent>
+              </Card>
+  );
+
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,8 +116,7 @@ export default function AdminProducts() {
     } catch (error : any) {
       console.error("Error fetching products:", error);
       toast.error("Failed to load products.");
-    }
-  };
+}  };
 
 
 
@@ -444,30 +474,9 @@ export default function AdminProducts() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loading ? ( // Conditionally render skeletons
+          {loading ? (
             Array.from({ length: 6 }).map((_, index) => (
-              <Card className="flex flex-col h-full">
-      <CardContent className="p-4 flex flex-col flex-grow">
-        <div className="relative aspect-square mb-4 group overflow-hidden rounded-lg bg-gray-100">
-          <Skeleton className="w-full h-full" />
-        </div>
-
-        <div className="flex-grow">
-          <Skeleton className="h-6 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-full mb-2" />
-          <Skeleton className="h-4 w-2/3 mb-2" />
-        </div>
-
-        <div className="flex items-center justify-between mb-4">
-          <Skeleton className="h-5 w-1/4" />
-        </div>
-
-        <div className="flex space-x-2 mt-auto">
-          <Skeleton className="h-9 w-1/2" />
-          <Skeleton className="h-9 w-1/2" />
-        </div>
-      </CardContent>
-    </Card>
+              <ProductSkeleton key={index} />
             ))
           ) : products.length > 0 ? (
             products.map((product) => (

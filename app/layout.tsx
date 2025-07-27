@@ -9,6 +9,7 @@ import { Footer } from '@/components/layout/footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://sscreation.com'),
   title: 'SSCreation - #1 Premium Graphic Design Templates & Festival Designs | SSCreation Official',
   description: 'SSCreation offers premium graphic design templates, festival designs, business cards, social media templates, and celebration graphics. Download instantly with commercial license. Best graphic design templates by SSCreation.',
   keywords: 'SSCreation, SS Creation, sscreation, graphic design templates, premium templates, festival designs, business templates, social media templates, celebration graphics, design templates, graphic design, festival graphics, business cards, poster templates, banner designs',

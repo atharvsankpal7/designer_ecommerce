@@ -38,7 +38,7 @@ export function SSRMobileNavigation({ sections, onLinkClick }: SSRMobileNavigati
           <Link
             href={buildSectionUrl(section)}
             className="flex-1 text-gray-700 hover:text-purple-600 transition-colors 
-                       duration-300 font-medium py-3 px-4 rounded-lg hover:bg-purple-50"
+                       duration-300 font-medium py-2 px-3 rounded-lg hover:bg-purple-50 text-sm"
             style={{ paddingLeft: `${paddingLeft + 16}px` }}
             onClick={onLinkClick}
           >
@@ -48,20 +48,20 @@ export function SSRMobileNavigation({ sections, onLinkClick }: SSRMobileNavigati
           {hasChildren && (
             <button
               onClick={() => toggleExpanded(section.id)}
-              className="p-2 text-gray-400 hover:text-purple-600 transition-colors 
+              className="p-1.5 text-gray-400 hover:text-purple-600 transition-colors 
                          rounded-lg hover:bg-purple-50"
             >
               {isExpanded ? (
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-3.5 w-3.5" />
               ) : (
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5" />
               )}
             </button>
           )}
         </div>
         
         {hasChildren && isExpanded && (
-          <div className="ml-4 border-l-2 border-purple-100">
+          <div className="ml-3 border-l-2 border-purple-100">
             {section.children!.map((child) =>
               renderMobileSection(child, level + 1)
             )}
@@ -80,7 +80,7 @@ export function SSRMobileNavigation({ sections, onLinkClick }: SSRMobileNavigati
       <div className="text-sm font-semibold text-gray-500 px-4 mb-3 uppercase tracking-wide">
         Categories
       </div>
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         {sections.map((section) => renderMobileSection(section))}
       </div>
     </div>

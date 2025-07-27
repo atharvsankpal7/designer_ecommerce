@@ -58,7 +58,6 @@ export default function BundleDetail() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <SSRHeader />
         <main>
           <section className="py-8 bg-gray-50">
             <div className="container mx-auto px-4">
@@ -125,7 +124,6 @@ export default function BundleDetail() {
   if (!bundle) {
     return (
       <div className="min-h-screen">
-        <SSRHeader />
         <main className="py-16">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-4">Bundle not found</h1>
