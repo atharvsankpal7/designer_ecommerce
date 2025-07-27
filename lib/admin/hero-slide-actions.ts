@@ -1,6 +1,5 @@
 import connectDB from '@/lib/mongodb';
 import { HeroSlide } from '@/lib/models';
-import { revalidateHeroSlideCaches } from '@/lib/cache-utils';
 
 export interface CreateHeroSlideData {
   title: string;
@@ -24,10 +23,9 @@ export async function getAllHeroSlidesAdmin() {
     
     const slides = await HeroSlide.find({})
       .sort({ displayOrder: 1, createdAt: -1 })
-      .lean();
 
     return slides.map(slide => ({
-      id: slide.id.toString(),
+      id: slide._id.toString(),
       title: slide.title,
       description: slide.description,
       imageUrl: slide.imageUrl,
@@ -63,11 +61,10 @@ export async function createHeroSlide(data: CreateHeroSlideData) {
 
     const savedSlide = await heroSlide.save();
     
-    // Revalidate cache
-    await revalidateHeroSlideCaches();
+   
     
     return {
-      id: savedSlide.id.toString(),
+      id: savedSlide._id.toString(),
       title: savedSlide.title,
       description: savedSlide.description,
       imageUrl: savedSlide.imageUrl,
@@ -103,11 +100,10 @@ export async function updateHeroSlide(data: UpdateHeroSlideData) {
       throw new Error('Hero slide not found');
     }
     
-    // Revalidate cache
-    await revalidateHeroSlideCaches();
+    
     
     return {
-      id: updatedSlide.id.toString(),
+      id: updatedSlide._id.toString(),
       title: updatedSlide.title,
       description: updatedSlide.description,
       imageUrl: updatedSlide.imageUrl,
@@ -136,8 +132,6 @@ export async function deleteHeroSlide(id: string) {
       throw new Error('Hero slide not found');
     }
     
-    // Revalidate cache
-    await revalidateHeroSlideCaches();
     
     return { success: true, message: 'Hero slide deleted successfully' };
   } catch (error) {
@@ -159,11 +153,10 @@ export async function toggleHeroSlideStatus(id: string) {
     slide.isActive = !slide.isActive;
     await slide.save();
     
-    // Revalidate cache
-    await revalidateHeroSlideCaches();
+ 
     
     return {
-      id: slide.id.toString(),
+      id: slide._id.toString(),
       isActive: slide.isActive,
     };
   } catch (error) {
@@ -184,8 +177,7 @@ export async function reorderHeroSlides(slideIds: string[]) {
     
     await Promise.all(updatePromises);
     
-    // Revalidate cache
-    await revalidateHeroSlideCaches();
+ 
     
     return { success: true, message: 'Hero slides reordered successfully' };
   } catch (error) {

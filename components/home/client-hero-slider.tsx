@@ -72,7 +72,7 @@ export function ClientHeroSlider({ slides }: ClientHeroSliderProps) {
           )}
           
           {/* Optional overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/10" />
+          {/* <div className="absolute inset-0 bg-black/10" /> */}
         </div>
       ))}
 

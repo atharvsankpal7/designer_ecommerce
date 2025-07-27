@@ -472,12 +472,14 @@ export default function HeroSlidesAdmin() {
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-4">
                     {/* Image Preview */}
-                    <div className="relative w-24 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                      <Image
-                        src={slide.imageUrl}
-                        alt={slide.altText}
-                        fill
-                        className="object-cover"
+                    <div className="w-32 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                    <Image
+                src={slide.imageUrl}
+                alt={slide.altText}
+                        width={128}
+                        height={80}
+                        className="w-full h-full object-contain"
+                quality={90}
                       />
                     </div>
 
