@@ -39,96 +39,92 @@ export async function BundleSection() {
         </div>
 
         {/* Bundle Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {bundles.map((bundle, index) => (
-            <div
-              key={bundle.id}
-              className="group relative hover:-translate-y-1 transition-transform duration-300"
-            >
-              <Card className="h-full overflow-hidden border border-orange-100 bg-white/90 backdrop-blur-sm shadow-sm hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-0 h-full flex flex-col">
-                  {/* Image Container */}
-                  <div className="relative aspect-square bg-gradient-to-br from-orange-50 to-amber-50 overflow-hidden">
-                    <Image
-                      src={bundle.displayImage || "/placeholder.svg"}
-                      alt={bundle.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      priority={index < 2}
-                    />
-                    
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent" />
-
-                    {/* Bundle Badge */}
-                    <Badge className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-orange-600 border-0 shadow-sm text-xs font-medium">
-                      <Package className="h-3 w-3 mr-1" />
-                      Collection
-                    </Badge>
-
-                    {/* Discount Badge */}
-                    {bundle.discountPrice && (
-                      <Badge className="absolute top-3 right-3 bg-gradient-to-r from-rose-500 to-orange-500 text-white border-0 shadow-sm text-xs font-medium">
-                        Save ₹{(bundle.originalPrice - bundle.discountPrice).toLocaleString()}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-5 sm:p-6 flex-1 flex flex-col">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg mb-2 text-gray-900 group-hover:text-orange-600 transition-colors">
-                        {bundle.name}
-                      </h3>
-
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                        {bundle.description}
-                      </p>
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl">
+            {bundles.map((bundle, index) => (
+              <div key={bundle.id} className="w-64">
+                <Card className="group h-full overflow-hidden border border-orange-100 bg-white/90 backdrop-blur-sm shadow-sm hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-2">
+                  <CardContent className="p-0 h-full flex flex-col">
+                    {/* Image Container */}
+                    <div className="relative h-48 bg-gradient-to-br from-orange-50 to-amber-50 overflow-hidden">
+                      <div className="absolute inset-0 flex items-center justify-center p-4">
+                        <Image
+                          src={bundle.displayImage || "/placeholder.svg"}
+                          alt={bundle.name}
+                          width={320}
+                          height={320}
+                          className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-500"
+                          priority={index < 2}
+                        />
+                      </div>
                     </div>
 
-                    {/* Price Section */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-baseline space-x-2">
-                        {bundle.discountPrice ? (
-                          <>
-                            <span className="text-xl font-bold text-orange-600">
-                              ₹{bundle.discountPrice.toLocaleString()}
-                            </span>
-                            <span className="line-through text-gray-400 text-sm">
-                              ₹{bundle.originalPrice.toLocaleString()}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-xl font-bold text-gray-900">
-                            ₹{bundle.originalPrice.toLocaleString()}
-                          </span>
+                    {/* Content */}
+                    <div className="p-4 flex-1 flex flex-col space-y-3">
+                      {/* Badges moved to card body */}
+                      <div className="flex gap-2 flex-shrink-0">
+                        <Badge className="bg-orange-500 text-white border-0 shadow-sm text-xs px-2 py-1">
+                          <Package className="h-3 w-3 mr-1" />
+                          Collection
+                        </Badge>
+
+                        {bundle.discountPrice && (
+                          <Badge className="bg-gradient-to-r from-rose-500 to-orange-500 text-white border-0 shadow-sm text-xs px-2 py-1">
+                            Save ₹{(bundle.originalPrice - bundle.discountPrice).toLocaleString()}
+                          </Badge>
                         )}
                       </div>
 
-                      <Badge variant="outline" className="border-orange-200 text-xs">
-                        {bundle.products.length} designs
-                      </Badge>
-                    </div>
+                      <h3 className="font-semibold text-base leading-tight text-gray-900 group-hover:text-orange-600 transition-colors min-h-[2.5rem]">
+                        {bundle.name}
+                      </h3>
 
-                    {/* Action Buttons */}
-                    <div className="space-y-2">
-                      <Button
-                        asChild
-                        size="sm"
-                        className="w-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-300"
-                      >
-                        <Link href={`/bundles/${bundle.id}`}>
-                          View Collection
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Link>
-                      </Button>
+                      <p className="text-sm text-gray-600 line-clamp-2 flex-shrink-0">
+                        {bundle.description}
+                      </p>
+
+                      <div className="flex-1 flex flex-col justify-end space-y-3">
+                        {/* Price Section */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-baseline space-x-2">
+                            {bundle.discountPrice ? (
+                              <>
+                                <span className="text-lg font-bold text-orange-600">
+                                  ₹{bundle.discountPrice.toLocaleString()}
+                                </span>
+                                <span className="line-through text-gray-400 text-sm">
+                                  ₹{bundle.originalPrice.toLocaleString()}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-lg font-bold text-gray-900">
+                                ₹{bundle.originalPrice.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+
+                          <Badge variant="outline" className="border-orange-200 text-xs">
+                            {bundle.products.length} designs
+                          </Badge>
+                        </div>
+
+                        {/* Action Button */}
+                        <Button
+                          asChild
+                          className="w-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-300 hover:shadow-md transform hover:scale-[1.02]"
+                        >
+                          <Link href={`/bundles/${bundle.id}`}>
+                            View Collection
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* View All Button */}

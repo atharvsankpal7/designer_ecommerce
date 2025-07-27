@@ -182,6 +182,9 @@ export default function AdminDashboard() {
               <QuickActionButton href="/admin/bundles" icon={Package}>
                 Manage Bundles
               </QuickActionButton>
+              <QuickActionButton href="/admin/hero-slides" icon={Activity}>
+                Manage Hero Slides
+              </QuickActionButton>
               
             </CardContent>
           </Card>

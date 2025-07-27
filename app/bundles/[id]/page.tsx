@@ -132,7 +132,6 @@ export default function BundleDetail() {
             </Button>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -142,7 +141,6 @@ export default function BundleDetail() {
 
   return (
     <div className="min-h-screen">
-      <SSRHeader />
       <main>
         <section className="py-8 bg-gray-50">
           <div className="container mx-auto px-4">
@@ -292,7 +290,6 @@ export default function BundleDetail() {
         onClose={() => setShowPurchaseModal(false)}
       />
       
-      <Footer />
     </div>
   );
 }

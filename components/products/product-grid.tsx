@@ -100,7 +100,7 @@ export function ProductGrid({
               src={product.displayImage}
               alt={product.title}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="object-contain group-hover:scale-105 transition-transform duration-300"
             />
             
             {product.isFeatured && (

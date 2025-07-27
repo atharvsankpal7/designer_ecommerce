@@ -1,63 +1,18 @@
-"use client"
+import { getHeroSlides } from '@/lib/actions';
+import { ClientHeroSlider } from './client-hero-slider';
+export const dynamic = 'force-dyamic'
+export async function HeroSlider() {
+  const heroSlides = await getHeroSlides();
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
-
-const heroImages = [
-  {
-    src: "/hero-marathi.png",
-    alt: "SSCreation Marathi Graphic Design Templates - Premium Festival and Business Designs",
-    title: "Marathi Templates"
-  },
-  {
-    src: "/hero-english.png", 
-    alt: "SSCreation English Graphic Design Templates - Professional Business and Celebration Designs",
-    title: "English Templates"
-  },
-  {
-    src: "/hero-hindi.png",
-    alt: "SSCreation Hindi Graphic Design Templates - Festival and Cultural Design Collection",
-    title: "Hindi Templates"
+  // If no slides are found, return null or a fallback
+  if (heroSlides.length === 0) {
+    return null;
   }
-]
-
-export function HeroSlider() {
-  const [currentIndex, setCurrentIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % heroImages.length)
-    }, 4000) // Change image every 4 seconds
-
-    return () => clearInterval(interval)
-  }, [])
 
   return (
-    <section className="relative w-full h-[12vh] sm:h-[20vh] lg:h-[35vh] overflow-hidden ">
-      {/* Background Images */}
-      {heroImages.map((image, index) => (
-        <div
-          key={index}
-          className={cn(
-            "absolute inset-0 transition-opacity duration-1000 ease-in-out ",
-            index === currentIndex ? "opacity-100" : "opacity-0"
-          )}
-        >
-          <Image
-            src={image.src}
-            alt={image.alt}
-            fill
-            className="object-fix"
-            priority={index === 0}
-            quality={90}
-            sizes="90vw"
-          />
-          
-          {/* Overlay for better text readability */}
-        </div>
-      ))}
-
+    <section className="relative w-full h-[12vh] sm:h-[20vh] lg:h-[40vh] overflow-hidden">
+      <ClientHeroSlider slides={heroSlides} />
+      
       {/* SEO Content - Hidden but accessible to search engines */}
       <div className="sr-only">
         <h1>SSCreation - Premium Graphic Design Templates</h1>
@@ -67,15 +22,13 @@ export function HeroSlider() {
           and celebration graphics for instant download.
         </p>
         <ul>
-          <li>Premium Marathi graphic design templates for festivals and celebrations</li>
-          <li>Professional English business templates and corporate designs</li>
-          <li>Traditional Hindi festival graphics and cultural templates</li>
+          {heroSlides.map((slide) => (
+            <li key={slide.id}>{slide.description || slide.title}</li>
+          ))}
           <li>Instant download with commercial license</li>
           <li>High-quality designs by SSCreation team</li>
         </ul>
       </div>
-
-     
 
       {/* Schema.org structured data for images */}
       <script
@@ -86,15 +39,15 @@ export function HeroSlider() {
             "@type": "ImageGallery",
             "name": "SSCreation Hero Gallery",
             "description": "Premium graphic design templates showcase by SSCreation",
-            "image": heroImages.map(img => ({
+            "image": heroSlides.map(slide => ({
               "@type": "ImageObject",
-              "url": `https://sscreation.com${img.src}`,
-              "name": img.title,
-              "description": img.alt
+              "url": slide.imageUrl.startsWith('http') ? slide.imageUrl : `https://sscreation.com${slide.imageUrl}`,
+              "name": slide.title,
+              "description": slide.altText
             }))
           })
         }}
       />
     </section>
-  )
+  );
 }

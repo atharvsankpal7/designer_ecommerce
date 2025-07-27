@@ -1,18 +1,10 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { SSRHeader } from '@/components/layout/ssr-header';
 import { Footer } from '@/components/layout/footer';
-import { PurchaseModal } from '@/components/products/purchase-modal';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ShoppingCart, Star, Share2 } from 'lucide-react';
+import { Star } from 'lucide-react';
 import Image from 'next/image';
-import {
-  Dialog,
-  DialogContent,
-} from '@/components/ui/dialog';
+import { ProductDetailClient } from '@/components/products/product-detail-client';
 
 interface Product {
   id: string;
@@ -21,102 +13,39 @@ interface Product {
   displayImage: string;
   originalPrice: number;
   discountPrice?: number;
- 
   isFeatured: boolean;
 }
 
-export default function ProductDetail() {
-  const params = useParams();
-  const router = useRouter();
-  const productId = params.id as string;
-  
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
-  const [expandedImage, setExpandedImage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (productId) {
-      fetchProduct();
-    }
-  }, [productId]);
-
-  const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/products/${productId}`);
-      if (!response.ok) {
-        throw new Error('Product not found');
-      }
-      const data = await response.json();
-      setProduct(data);
-    } catch (error : any) {
-      console.error('Error fetching product:', error);
-      router.push('/products');
-    } finally {
-      setLoading(false);
-    }
+interface ProductDetailProps {
+  params: {
+    id: string;
   };
+}
 
-  const handlePurchase = () => {
-    if (product) {
-      setShowPurchaseModal(true);
+// Server-side function to fetch product data
+async function getProduct(id: string): Promise<Product | null> {
+  try {
+    // Replace with your actual API base URL or direct database call
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/products/${id}`, {
+      cache: 'no-store', // or 'force-cache' depending on your needs
+    });
+    
+    if (!response.ok) {
+      return null;
     }
-  };
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: product?.title,
-          text: product?.description,
-          url: window.location.href,
-        });
-      } catch (error : any) {
-        console.log('Error sharing:', error);
-      }
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="aspect-square bg-gray-200 rounded-lg"></div>
-              <div className="space-y-4">
-                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-20 bg-gray-200 rounded"></div>
-                <div className="h-12 bg-gray-200 rounded w-1/3"></div>
-              </div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return null;
   }
+}
+
+export default async function ProductDetail({ params }: ProductDetailProps) {
+  const product = await getProduct(params.id);
 
   if (!product) {
-    return (
-      <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-            <Button onClick={() => router.push('/products')}>
-              Back to Products
-            </Button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+    notFound();
   }
 
   const discountPercentage = product.discountPrice 
@@ -125,18 +54,7 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen">
-      <SSRHeader />
       <main className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="mb-6 hover:bg-gray-100"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Product Image */}
           <div className="space-y-4">
@@ -145,10 +63,9 @@ export default function ProductDetail() {
                 src={product.displayImage}
                 alt={product.title}
                 fill
-                className="object-contain p-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="object-contain p-4"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
-                onClick={() => setExpandedImage(product.displayImage)}
               />
               
               {product.isFeatured && (
@@ -169,7 +86,6 @@ export default function ProductDetail() {
           {/* Product Details */}
           <div className="space-y-6">
             <div>
-              
               <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
               <p className="text-gray-600 text-lg leading-relaxed">
                 {product.description}
@@ -201,27 +117,8 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-4">
-              <Button
-                size="lg"
-                onClick={handlePurchase}
-                className="w-full text-lg py-6"
-              >
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                Buy Now
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleShare}
-                className="w-full"
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share Product
-              </Button>
-            </div>
+            {/* Client-side interactive components */}
+            <ProductDetailClient product={product} />
 
             {/* Additional Info */}
             <div className="border-t pt-6 space-y-4">
@@ -238,35 +135,27 @@ export default function ProductDetail() {
           </div>
         </div>
       </main>
-      <Footer />
-
-      {/* Purchase Modal */}
-      <PurchaseModal
-        product={product}
-        isOpen={showPurchaseModal}
-        onClose={() => setShowPurchaseModal(false)}
-      />
-
-      {/* Image Expansion Modal */}
-      <Dialog
-        open={!!expandedImage}
-        onOpenChange={(open) => !open && setExpandedImage(null)}
-      >
-        <DialogContent className="p-0 bg-transparent border-none max-w-[95vw] max-h-[90vh] w-auto h-auto flex items-center justify-center">
-          {expandedImage && (
-            <div className="relative w-full h-full flex items-center justify-center">
-              <Image
-                src={expandedImage}
-                alt="Expanded product view"
-                width={1200}
-                height={1200}
-                className="object-contain max-w-full max-h-[85vh]"
-                priority
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
+}
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: ProductDetailProps) {
+  const product = await getProduct(params.id);
+
+  if (!product) {
+    return {
+      title: 'Product Not Found',
+    };
+  }
+
+  return {
+    title: product.title,
+    description: product.description,
+    openGraph: {
+      title: product.title,
+      description: product.description,
+      images: [product.displayImage],
+    },
+  };
 }

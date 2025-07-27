@@ -1,7 +1,8 @@
 // lib/actions/product.actions.ts
 
 import connectDB from '@/lib/mongodb';
-import { Bundle, Product, Section } from '@/lib/models'; 
+import { Bundle, Product, Section, HeroSlide } from '@/lib/models'; 
+import { unstable_cache } from 'next/cache';
 export const dynamic = 'force-dynamic';
 
 
@@ -254,5 +255,74 @@ export async function getSectionProducts(sectionId: string): Promise<ProductType
   } catch (error : any) {
     console.error("Error fetching section products:", error)
     return []
+  }
+}
+
+// Hero Slide Types and Actions
+interface HeroSlideType {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  altText: string;
+  displayOrder: number;
+  linkUrl?: string;
+  linkText?: string;
+  isActive: boolean;
+}
+
+// Get active hero slides for display
+export const getHeroSlides = 
+  async (): Promise<HeroSlideType[]> => {
+    try {
+      await connectDB();
+
+      const slides = await HeroSlide.find({
+        isActive: true,
+      })
+        .sort({ displayOrder: 1, createdAt: -1 })
+        .lean();
+        console.log(slides)
+
+      const transformedSlides = slides.map((slide) => ({
+        id: slide._id.toString(),
+        title: slide.title,
+        description: slide.description,
+        imageUrl: slide.imageUrl,
+        altText: slide.altText,
+        displayOrder: slide.displayOrder,
+        linkUrl: slide.linkUrl,
+        linkText: slide.linkText,
+        isActive: slide.isActive,
+      }));
+
+      return transformedSlides;
+    } catch (error: any) {
+      console.error('Error fetching hero slides:', error);
+      return [];
+    }
+  }
+
+// Get single hero slide by ID
+export async function getHeroSlideById(slideId: string): Promise<HeroSlideType | null> {
+  try {
+    await connectDB();
+    const slide = await HeroSlide.findById(slideId).lean();
+    if (!slide) return null;
+    console.log(slide)
+    return {
+      id: slide.id.toString(),
+      title: slide.title,
+      description: slide.description,
+      imageUrl: slide.imageUrl,
+      altText: slide.altText,
+      displayOrder: slide.displayOrder,
+      linkUrl: slide.linkUrl,
+      linkText: slide.linkText,
+      isActive: slide.isActive,
+    };
+  } catch (error: any) {
+    console.error(`Error fetching hero slide ${slideId}:`, error);
+    return null;
   }
 }

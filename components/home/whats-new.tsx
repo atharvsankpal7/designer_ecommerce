@@ -40,78 +40,83 @@ export async function WhatsNew() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {products.map((product) => (
-            <div key={product.id}>
-              <Card className="group overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-indigo-100 bg-white/50 backdrop-blur-sm h-full flex flex-col">
-                <CardContent className="p-0 flex flex-col h-full">
-                  <div className="relative h-64 bg-gradient-to-br from-indigo-50 to-pink-50 overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center p-4">
-                      <Image
-                        src={product.displayImage || "/placeholder.svg"}
-                        alt={product.title}
-                        width={400}
-                        height={300}
-                        className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-300"
-                      />
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl">
+            {products.map((product) => (
+              <div key={product.id} className="w-64">
+                <Card className="group overflow-hidden hover:shadow-xl transition-all duration-500 border border-indigo-100 bg-white/80 backdrop-blur-sm h-full flex flex-col transform hover:scale-[1.02] hover:-translate-y-2">
+                  <CardContent className="p-0 flex flex-col h-full">
+                    <div className="relative h-48 bg-gradient-to-br from-indigo-50 to-pink-50 overflow-hidden">
+                      <div className="absolute inset-0 flex items-center justify-center p-4">
+                        <Image
+                          src={product.displayImage || "/placeholder.svg"}
+                          alt={product.title}
+                          width={320}
+                          height={320}
+                          className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
                     </div>
 
-                    <Badge className="absolute top-4 left-4 bg-pink-500 text-white border-0 shadow-sm">
-                      <Clock className="h-3 w-3 mr-1" />
-                      New
-                    </Badge>
+                    <div className="p-4 flex flex-col flex-grow space-y-3">
+                      {/* Badges moved to card body */}
+                      <div className="flex gap-2 flex-shrink-0">
+                        <Badge className="bg-pink-500 text-white border-0 shadow-sm text-xs px-2 py-1">
+                          <Clock className="h-3 w-3 mr-1" />
+                          New
+                        </Badge>
 
-                    {product.discountPrice && (
-                      <Badge className="absolute top-4 right-4 bg-indigo-500 text-white border-0 shadow-sm">
-                        {Math.round(
-                          ((product.originalPrice - product.discountPrice) /
-                            product.originalPrice) *
-                            100
+                        {product.discountPrice && (
+                          <Badge className="bg-indigo-500 text-white border-0 shadow-sm text-xs px-2 py-1">
+                            {Math.round(
+                              ((product.originalPrice - product.discountPrice) /
+                                product.originalPrice) *
+                                100
+                            )}
+                            % OFF
+                          </Badge>
                         )}
-                        % OFF
-                      </Badge>
-                    )}
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="font-bold text-lg mb-4 text-indigo-900 group-hover:text-pink-600 transition-colors">
-                      {product.title}
-                    </h3>
-
-                    <div className="mt-auto">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-2">
-                          {product.discountPrice ? (
-                            <>
-                              <span className="text-xl font-bold text-pink-600">
-                                ₹{product.discountPrice.toLocaleString()}
-                              </span>
-                              <span className="line-through text-gray-400 text-sm">
-                                ₹{product.originalPrice.toLocaleString()}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-xl font-bold text-indigo-900">
-                              ₹{product.originalPrice.toLocaleString()}
-                            </span>
-                          )}
-                        </div>
                       </div>
 
-                      <Button
-                        asChild
-                        className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white rounded-lg font-medium py-5 transition-all duration-300 hover:shadow-md"
-                      >
-                        <Link href={`/products/${product.id}`}>
-                          View Details
-                        </Link>
-                      </Button>
+                      <h3 className="font-semibold text-base leading-tight text-indigo-900 group-hover:text-pink-600 transition-colors min-h-[2.5rem]">
+                        {product.title}
+                      </h3>
+
+                      <div className="flex-1 flex flex-col justify-end space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-baseline space-x-2">
+                            {product.discountPrice ? (
+                              <>
+                                <span className="text-lg font-bold text-pink-600">
+                                  ₹{product.discountPrice.toLocaleString()}
+                                </span>
+                                <span className="line-through text-gray-400 text-sm">
+                                  ₹{product.originalPrice.toLocaleString()}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-lg font-bold text-indigo-900">
+                                ₹{product.originalPrice.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <Button
+                          asChild
+                          className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white rounded-lg font-medium transition-all duration-300 hover:shadow-md transform hover:scale-[1.02]"
+                        >
+                          <Link href={`/products/${product.id}`}>
+                            View Details
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="text-center mt-12">
