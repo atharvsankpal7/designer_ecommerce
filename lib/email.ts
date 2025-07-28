@@ -52,12 +52,11 @@ export async function sendBundleFiles(email: string, bundleName: string, files: 
 
   await transporter.sendMail(mailOptions);
 }
-
 export async function sendProductFiles(email: string, productTitle: string, files: string[]) {
-  const attachments = files.map(file => ({
-    filename: file.split('/').pop(),
-    path: file
-  }));
+  const fileLinksHTML = files.map(file => {
+    const fileName = file.split('/').pop();
+    return `<li><a href="${file}" download>${fileName}</a></li>`;
+  }).join('');
 
   const mailOptions = {
     from: process.env.SMTP_FROM,
@@ -66,11 +65,12 @@ export async function sendProductFiles(email: string, productTitle: string, file
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333;">Thank you for your purchase!</h2>
-        <p>Your product files for <strong>${productTitle}</strong> are attached to this email.</p>
+        <p>Your product files for <strong>${productTitle}</strong> are available below:</p>
+        <ul>${fileLinksHTML}</ul>
         <p>If you have any questions, please contact our support team.</p>
       </div>
-    `,
-    attachments
+    `
+    // No attachments
   };
 
   await transporter.sendMail(mailOptions);
