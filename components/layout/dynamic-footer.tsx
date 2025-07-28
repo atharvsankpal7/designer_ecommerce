@@ -14,6 +14,7 @@ import {
   Linkedin, 
   Globe 
 } from 'lucide-react';
+import { getFooterData } from "@/lib/actions";
 
 const getIconComponent = (iconName: string) => {
   const iconMap: { [key: string]: any } = {
@@ -27,42 +28,7 @@ const getIconComponent = (iconName: string) => {
   return iconMap[iconName] || Globe;
 };
 
-async function getFooterData() {
-  try {
-    await connectDB();
-    
-    let contactSettings = await ContactSettings.findOne().lean();
-    if (!contactSettings) {
-      contactSettings = await ContactSettings.create({});
-    }
-    
-    const socialMedia = await SocialMedia.find({ 
-      isActive: true, 
-      showInFooter: true 
-    }).sort({ order: 1 }).lean();
-    
-    const footerLinks = await FooterLinks.find({ 
-      isActive: true 
-    }).sort({ category: 1, order: 1 }).lean();
-    
-    return {
-      contactSettings: JSON.parse(JSON.stringify(contactSettings)),
-      socialMedia: JSON.parse(JSON.stringify(socialMedia)),
-      footerLinks: JSON.parse(JSON.stringify(footerLinks))
-    };
-  } catch (error) {
-    console.error('Error fetching footer data:', error);
-    return {
-      contactSettings: {
-        phone: '+91 98765 43210',
-        email: 'hello@sscreation.com',
-        address: 'Mumbai, Maharashtra'
-      },
-      socialMedia: [],
-      footerLinks: []
-    };
-  }
-}
+
 
 export async function DynamicFooter() {
   const { contactSettings, socialMedia, footerLinks } = await getFooterData();

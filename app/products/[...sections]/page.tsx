@@ -8,6 +8,7 @@ import { SectionSidebar } from '@/components/products/section-sidebar';
 import { getSectionBySlugPath, getSectionBreadcrumb, buildSectionPath } from '@/lib/section-utils';
 import connectDB from '@/lib/mongodb';
 import { Product } from '@/lib/models';
+import { getSectionProducts, getSectionProducts2 } from '@/lib/actions';
 
 interface ProductPageProps {
   params: {
@@ -20,77 +21,7 @@ interface ProductPageProps {
   };
 }
 
-async function getSectionProducts(sectionId: string, page = 1, sort = 'newest', priceRange?: string) {
-  await connectDB();
-  
-  const limit = 12;
-  const skip = (page - 1) * limit;
-  
-  let query: any = {
-    isActive: true,
-    sectionIds: sectionId,
-  };
-  
-  // Apply price range filter
-  if (priceRange) {
-    const [min, max] = priceRange.split('-').map(Number);
-    if (max) {
-      query.originalPrice = { $gte: min, $lte: max };
-    } else {
-      query.originalPrice = { $gte: min };
-    }
-  }
-  
-  // Apply sorting
-  let sortQuery: any = {};
-  switch (sort) {
-    case 'price-low':
-      sortQuery = { originalPrice: 1 };
-      break;
-    case 'price-high':
-      sortQuery = { originalPrice: -1 };
-      break;
-    case 'name':
-      sortQuery = { title: 1 };
-      break;
-    case 'featured':
-      sortQuery = { isFeatured: -1, createdAt: -1 };
-      break;
-    default:
-      sortQuery = { createdAt: -1 };
-  }
-  
-  const [products, totalCount] = await Promise.all([
-    Product.find(query)
-      .sort(sortQuery)
-      .skip(skip)
-      .limit(limit)
-      .populate('sectionIds', 'name slug'),
-    Product.countDocuments(query)
-  ]);
-  
-  const transformedProducts = products.map((product) => ({
-    id: product.id.toString(),
-    title: product.title,
-    description: product.description,
-    displayImage: product.displayImage,
-    originalPrice: product.originalPrice,
-    discountPrice: product.discountPrice,
-    isFeatured: product.isFeatured,
-    sections: product.sectionIds.map((section: any) => ({
-      id: section.id.toString(),
-      name: section.name,
-      slug: section.slug,
-    })),
-  }));
-  
-  return {
-    products: transformedProducts,
-    totalCount,
-    totalPages: Math.ceil(totalCount / limit),
-    currentPage: page,
-  };
-}
+
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const slugPath = params.sections.join('/');
@@ -134,7 +65,7 @@ export default async function SectionProductsPage({ params, searchParams }: Prod
   const priceRange = searchParams.priceRange;
   
   const [productData, breadcrumb] = await Promise.all([
-    getSectionProducts(section.id, page, sort, priceRange),
+    getSectionProducts2(section.id, page, sort, priceRange),
     getSectionBreadcrumb(section.id)
   ]);
   

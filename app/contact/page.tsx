@@ -11,6 +11,7 @@ import {
   Linkedin, 
   Globe 
 } from 'lucide-react';
+import { getContactData } from '@/lib/actions';
 
 interface ContactPageProps {
   contactSettings: any;
@@ -29,46 +30,7 @@ const getIconComponent = (iconName: string) => {
   return iconMap[iconName] || Globe;
 };
 
-async function getContactData() {
-  try {
-    await connectDB();
-    
-    let contactSettings = await ContactSettings.findOne().lean();
-    if (!contactSettings) {
-      contactSettings = await ContactSettings.create({});
-    }
-    
-    const socialMedia = await SocialMedia.find({ 
-      isActive: true, 
-      showInContact: true 
-    }).sort({ order: 1 }).lean();
-    
-    return {
-      contactSettings: JSON.parse(JSON.stringify(contactSettings)),
-      socialMedia: JSON.parse(JSON.stringify(socialMedia))
-    };
-  } catch (error) {
-    console.error('Error fetching contact data:', error);
-    return {
-      contactSettings: {
-        phone: '+91 98765 43210',
-        email: 'hello@sscreation.com',
-        address: '123 Design Street, Mumbai',
-        workingHours: {
-          monday: '9:00 AM - 6:00 PM',
-          tuesday: '9:00 AM - 6:00 PM',
-          wednesday: '9:00 AM - 6:00 PM',
-          thursday: '9:00 AM - 6:00 PM',
-          friday: '9:00 AM - 6:00 PM',
-          saturday: '10:00 AM - 4:00 PM',
-          sunday: 'Closed'
-        },
-        mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.715872126558!2d72.8245093153778!3d19.04346925793646!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c96a34dc4401%3A0x3ffc07e83942b13f!2s123%20Design%20Street%2C%20Mumbai%2C%20Maharashtra%20400001!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin'
-      },
-      socialMedia: []
-    };
-  }
-}
+
 
 export default async function Contact() {
   const { contactSettings, socialMedia } = await getContactData();
