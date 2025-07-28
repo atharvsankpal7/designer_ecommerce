@@ -14,9 +14,13 @@ import { SearchDropdown } from './search-dropdown';
 
 interface ClientHeaderProps {
   navigationSections: SectionHierarchy[];
+  headerData: {
+    phone: string;
+    whatsappNumber: string;
+  };
 }
 
-export function ClientHeader({ navigationSections }: ClientHeaderProps) {
+export function ClientHeader({ navigationSections, headerData }: ClientHeaderProps) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -124,13 +128,13 @@ export function ClientHeader({ navigationSections }: ClientHeaderProps) {
 
           <div className="hidden lg:flex items-center space-x-4">
             <a 
-              href="tel:+91-9876543210" 
+              href={`tel:${headerData.phone.replace(/\s/g, '')}`} 
               className="flex items-center text-gray-600 hover:text-purple-600 transition-colors duration-300 group text-sm"
             >
               <div className="w-7 h-7 bg-purple-100 rounded-full flex items-center justify-center mr-2 group-hover:bg-purple-200 transition-colors">
                 <Phone className="h-4 w-4" />
               </div>
-              <span className="font-medium text-sm">+91-9876543210</span>
+              <span className="font-medium text-sm">{headerData.phone}</span>
             </a>
           </div>
 
@@ -277,11 +281,11 @@ export function ClientHeader({ navigationSections }: ClientHeaderProps) {
               
               <div className="pt-3 border-t border-gray-200">
                 <a 
-                  href="tel:+91-9876543210" 
+                  href={`tel:${headerData.phone.replace(/\s/g, '')}`} 
                   className="flex items-center text-gray-600 hover:text-purple-600 transition-colors duration-300 py-2 px-3 rounded-lg hover:bg-purple-50 text-sm"
                 >
                   <Phone className="h-4 w-4 mr-3" />
-                  +91-9876543210
+                  {headerData.phone}
                 </a>
               </div>
             </div>

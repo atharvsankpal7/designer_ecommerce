@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { connectDB } from '@/lib/mongodb';
 import ContactSettings from '@/models/ContactSettings';
@@ -53,7 +53,7 @@ export default async function Contact() {
         {/* Contact Cards */}
         <section className="py-16 -mt-12">
           <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-4 gap-6 max-w-7xl mx-auto">
               {/* Phone Card */}
               <Card className="border-0 bg-white shadow-sm hover:shadow-md transition-all duration-300">
                 <CardContent className="p-8 text-center">
@@ -64,6 +64,25 @@ export default async function Contact() {
                   <p className="text-rose-700/80 mb-4">Available during business hours</p>
                   <a href={`tel:${contactSettings.phone.replace(/\s/g, '')}`} className="text-lg font-medium text-rose-600 hover:text-rose-800 transition-colors">
                     {contactSettings.phone}
+                  </a>
+                </CardContent>
+              </Card>
+
+              {/* WhatsApp Card */}
+              <Card className="border-0 bg-white shadow-sm hover:shadow-md transition-all duration-300">
+                <CardContent className="p-8 text-center">
+                  <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600">
+                    <MessageCircle className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-green-800 mb-2">WhatsApp</h3>
+                  <p className="text-green-700/80 mb-4">Quick chat support</p>
+                  <a 
+                    href={`https://wa.me/${contactSettings.whatsappNumber?.replace(/[^\d+]/g, '')}?text=${encodeURIComponent("Hello! I'm interested in your products.")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-lg font-medium text-green-600 hover:text-green-800 transition-colors"
+                  >
+                    Chat Now
                   </a>
                 </CardContent>
               </Card>

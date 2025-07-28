@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import { Providers } from '@/components/providers';
 import { SSRHeader } from '@/components/layout/ssr-header';
 import { DynamicFooter } from '@/components/layout/dynamic-footer';
+import { WhatsAppFloatWrapper } from '@/components/ui/whatsapp-float-wrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -136,6 +137,7 @@ export default function RootLayout({
           <SSRHeader />
           {children}
           <DynamicFooter />
+          <WhatsAppFloatWrapper />
         </Providers>
         <Toaster position="top-right" />
       </body>

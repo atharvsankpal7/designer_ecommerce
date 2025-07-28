@@ -337,6 +337,32 @@ export async function getHeroSlideById(slideId: string): Promise<HeroSlideType |
   }
 }
 
+// Get header data (phone number for header display)
+export async function getHeaderData() {
+  try {
+    await connectDB();
+    
+    const contactSettings = await ContactSettings.findOne().lean();
+    if (!contactSettings || Array.isArray(contactSettings)) {
+      return {
+        phone: '+91 85303 28357',
+        whatsappNumber: '+918530328357'
+      };
+    }
+    
+    return {
+      phone: (contactSettings as any).phone || '+91 85303 28357',
+      whatsappNumber: (contactSettings as any).whatsappNumber || '+918530328357'
+    };
+  } catch (error) {
+    console.error('Error fetching header data:', error);
+    return {
+      phone: '+91 85303 28357',
+      whatsappNumber: '+918530328357'
+    };
+  }
+}
+
 export async function getContactData() {
   try {
     await connectDB();
@@ -371,7 +397,8 @@ export async function getContactData() {
           saturday: '10:00 AM - 4:00 PM',
           sunday: 'Closed'
         },
-        mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.715872126558!2d72.8245093153778!3d19.04346925793646!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c96a34dc4401%3A0x3ffc07e83942b13f!2s123%20Design%20Street%2C%20Mumbai%2C%20Maharashtra%20400001!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin'
+        mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.715872126558!2d72.8245093153778!3d19.04346925793646!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c96a34dc4401%3A0x3ffc07e83942b13f!2s123%20Design%20Street%2C%20Mumbai%2C%20Maharashtra%20400001!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin',
+        whatsappNumber: '+919876543210'
       },
       socialMedia: []
     };

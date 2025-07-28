@@ -14,6 +14,7 @@ interface ContactSettings {
   phone: string;
   email: string;
   address: string;
+  whatsappNumber: string;
   workingHours: {
     monday: string;
     tuesday: string;
@@ -31,6 +32,7 @@ export function ContactSettingsManager() {
     phone: '',
     email: '',
     address: '',
+    whatsappNumber: '',
     workingHours: {
       monday: '',
       tuesday: '',
@@ -142,6 +144,18 @@ export function ContactSettingsManager() {
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 placeholder="+91 98765 43210"
               />
+            </div>
+            <div>
+              <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+              <Input
+                id="whatsappNumber"
+                value={settings.whatsappNumber}
+                onChange={(e) => handleInputChange('whatsappNumber', e.target.value)}
+                placeholder="+919876543210"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Used for the floating WhatsApp button. Include country code without spaces.
+              </p>
             </div>
             <div>
               <Label htmlFor="email">Email Address</Label>
