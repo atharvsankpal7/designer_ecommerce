@@ -11,11 +11,13 @@ export async function POST(request: NextRequest) {
     const { email, productId } = await request.json();
 
     // Find verified order
+    const d = Product.findById(productId);
     const order = await Order.findOne({
       email,
       productId,
       status: 'verified',
     }).populate('productId');
+
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found or not verified' }, { status: 400 });
