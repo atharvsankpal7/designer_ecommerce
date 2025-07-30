@@ -513,3 +513,30 @@ export async function getSectionProducts2(sectionId: string, page = 1, sort = 'n
     currentPage: page,
   };
 }
+
+export async function getContactSettings() {
+  try {
+    await connectDB();
+    let settings = await ContactSettings.findOne()
+    
+    if (!settings) {
+      settings = await ContactSettings.create({});
+    }
+    
+    return {
+      email: settings.email || 'ssbusiness7733@gmail.com',
+      phone: settings.phone || '+91 85303 28357',
+      address: settings.address || 'Peth, Sangli Road, SS CREATION Islampur, Opposite Rajarambapu Patil Bank',
+      whatsappNumber: settings.whatsappNumber || '91 85303 28357'
+    };
+  } catch (error) {
+    console.error('Error fetching contact settings:', error);
+    // Return fallback values
+    return {
+      email: 'ssbusiness7733@gmail.com',
+      phone: '++91 85303 28357',
+      address: 'Peth, Sangli Road, SS CREATION Islampur, Opposite Rajarambapu Patil Bank',
+      whatsappNumber: '+91 85303 28357'
+    };
+  }
+}
