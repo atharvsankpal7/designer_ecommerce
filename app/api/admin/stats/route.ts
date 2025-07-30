@@ -24,7 +24,7 @@ export async function GET() {
       amount: order.amount,
       status: order.status,
       product: {
-        title: (order.productId as any).title,
+        title: order.productId?.title || 'Product not found',
       },
     }));
 
